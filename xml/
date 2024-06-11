@@ -781,9 +781,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e01']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e01" inherit="NWA12_forecast_2024_04">
@@ -840,9 +837,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e02']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e02" inherit="NWA12_forecast_2024_04">
@@ -899,9 +893,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e03']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e03" inherit="NWA12_forecast_2024_04">
@@ -958,9 +949,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e04']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e04" inherit="NWA12_forecast_2024_04">
@@ -1017,9 +1005,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e05']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e05" inherit="NWA12_forecast_2024_04">
@@ -1076,9 +1061,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e06']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e06" inherit="NWA12_forecast_2024_04">
@@ -1135,9 +1117,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e07']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e07" inherit="NWA12_forecast_2024_04">
@@ -1194,9 +1173,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e08']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e08" inherit="NWA12_forecast_2024_04">
@@ -1253,9 +1229,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e09']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e09" inherit="NWA12_forecast_2024_04">
@@ -1312,9 +1285,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e10']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e10" inherit="NWA12_forecast_2024_04">
@@ -1371,9 +1341,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e11']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e11" inherit="NWA12_forecast_2024_04">
@@ -1430,9 +1397,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e12']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e12" inherit="NWA12_forecast_2024_04">
@@ -1489,9 +1453,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e13']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e13" inherit="NWA12_forecast_2024_04">
@@ -1548,9 +1509,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e14']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e14" inherit="NWA12_forecast_2024_04">
@@ -1607,9 +1565,6 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e15']/node())"/>
     </input>
-    <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
-    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e15" inherit="NWA12_forecast_2024_04">
@@ -1658,40 +1613,16 @@ SIS_OVERRIDE_EOF
     </input>
   </experiment>
 
-  <freInclude name="NWA12_forecast_2024_04_postprocess">
+  <freInclude>
     <postProcess>
-      <component type="ocean_monthly" start="$(PP_START_YEAR)" source="ocean_monthly">
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_A)" source="ocean_monthly"/>	
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_B)" source="ocean_monthly">
-          <variables>
-            tos tob ssh MLD_003 sos
-          </variables>
-        </timeSeries>
-      </component>	
-      <component type="ocean_daily" start="$(PP_START_YEAR)" source="ocean_daily">
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_A)" source="ocean_daily"/>	
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_B)" source="ocean_daily">
-          <variables>
-            tos tob ssh ssh_max 
-          </variables>
-        </timeSeries>
-      </component>	
-      <component type="ocean_cobalt_neus" start="$(PP_START_YEAR)" source="ocean_cobalt_neus">
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_A)" source="ocean_cobalt_neus"/>	
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_B)" source="ocean_cobalt_neus">
-          <variables>
-            chlos o2 no3os po4os zmesoos
-          </variables>
-        </timeSeries>
-      </component>	
-      <component type="ocean_neus" start="$(PP_START_YEAR)" source="ocean_neus">
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_A)" source="ocean_neus"/>	
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_B)" source="ocean_neus">
-          <variables>
-            MLD003 ustar
-          </variables>
-        </timeSeries>
-      </component>	
+       <component type="ocean_monthly" start="$(PP_START_YEAR)" source="ocean_monthly">
+         <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_A)" source="ocean_monthly"/>	
+         <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_B)" source="ocean_monthly">
+	   <variables>
+	     tos tob ssh sshmin sshmax
+           </variables>
+	 </timeSeries>
+       </component>	
     </postProcess>
   </freInclude>
 
