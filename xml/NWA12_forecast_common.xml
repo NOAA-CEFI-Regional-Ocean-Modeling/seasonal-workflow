@@ -26,14 +26,16 @@
   <property name="PROD_SIMTIME" value="1"/>
   
   <!--Post-processing  chunk lengths -->
-  <property name="CHUNK_LENGTH_A" value="5yr"/>
-  <property name="CHUNK_LENGTH_B" value="20yr"/> 
+  <property name="CHUNK_LENGTH_A" value="1yr"/>
+  <property name="CHUNK_LENGTH_B" value="5yr"/> 
+  <!-- <property name="CHUNK_LENGTH_A" value="5yr"/>
+   <property name="CHUNK_LENGTH_B" value="20yr"/> --> 
   
   <!--Start year of PP -->
   <property name="PP_START_YEAR" value="1993"/>
   
   <!-- fre version to be used -->
-  <property name="FRE_VERSION" value="bronx-21"/>
+  <property name="FRE_VERSION" value="bronx-22"/>
 
   <!-- on/off switch for MDBI database -->
   <property name="MDBIswitch" value="off"/>
@@ -61,8 +63,8 @@
   <property name="append_to_setup_csh" value="set fyear=`echo $baseDate | cut -c1-4`"/>
   
   <setup>
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../nwa-xml/xml_include/xml_building_blocks/platforms.xml" xpointer="xpointer(//freInclude/platform[@name='ncrc5.intel22'])"/>
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../nwa-xml/xml_include/xml_building_blocks/platforms.xml" xpointer="xpointer(//freInclude/platform[@name='gfdl.ncrc5-intel22'])"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="platforms.xml" xpointer="xpointer(//freInclude/platform[@name='ncrc5.intel22'])"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="platforms.xml" xpointer="xpointer(//freInclude/platform[@name='gfdl.ncrc5-intel22'])"/>
   </setup>
 
   <!--= COMPILE =-->
@@ -782,6 +784,8 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e01']/node())"/>
     </input>
     <postProcess>
+      <csh>
+      </csh>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
     </postProcess>
   </experiment>
@@ -1660,39 +1664,41 @@ SIS_OVERRIDE_EOF
 
   <freInclude name="NWA12_forecast_2024_04_postprocess">
     <postProcess>
-      <component type="ocean_monthly" start="$(PP_START_YEAR)" source="ocean_monthly">
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_A)" source="ocean_monthly"/>	
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_B)" source="ocean_monthly">
+      <component type="ocean_month" source="ocean_month">
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_month">	
           <variables>
             tos tob ssh MLD_003 sos
           </variables>
+          <analysis endYear="1993" script="/work/Utheri.Wagura/seasonal-workflow/xml/scripts/combine_files_ocean_monthly_199303-199402.sh"/>
         </timeSeries>
-      </component>	
+      </component>
+		
+	<!--	
       <component type="ocean_daily" start="$(PP_START_YEAR)" source="ocean_daily">
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_A)" source="ocean_daily"/>	
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_B)" source="ocean_daily">
+        <timeSeries freq="daily" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_daily">	
           <variables>
             tos tob ssh ssh_max 
           </variables>
         </timeSeries>
-      </component>	
+      </component>
       <component type="ocean_cobalt_neus" start="$(PP_START_YEAR)" source="ocean_cobalt_neus">
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_A)" source="ocean_cobalt_neus"/>	
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_B)" source="ocean_cobalt_neus">
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_cobalt_neus"/>	
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_B)" source="ocean_cobalt_neus">
           <variables>
             chlos o2 no3os po4os zmesoos
           </variables>
         </timeSeries>
       </component>	
       <component type="ocean_neus" start="$(PP_START_YEAR)" source="ocean_neus">
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_A)" source="ocean_neus"/>	
-        <timeSeries freq="monthly" chuckLength="$(CHUNK_LENGTH_B)" source="ocean_neus">
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_neus"/>	
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_B)" source="ocean_neus">
           <variables>
             MLD003 ustar
           </variables>
         </timeSeries>
-      </component>	
-    </postProcess>
+      </component>-->	
+
+    </postProcess> 
   </freInclude>
 
 </freInclude>
