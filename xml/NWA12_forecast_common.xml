@@ -27,9 +27,9 @@
   
   <!--Post-processing  chunk lengths -->
   <property name="CHUNK_LENGTH_A" value="1yr"/>
-  <property name="CHUNK_LENGTH_B" value="5yr"/> 
-  <!-- <property name="CHUNK_LENGTH_A" value="5yr"/>
-   <property name="CHUNK_LENGTH_B" value="20yr"/> --> 
+  <property name="CHUNK_LENGTH_B" value="5yr"/>
+  <!--<property name="CHUNK_LENGTH_A" value="5yr"/>
+  <property name="CHUNK_LENGTH_B" value="20yr"/>  -->
   
   <!--Start year of PP -->
   <property name="PP_START_YEAR" value="1993"/>
@@ -1317,7 +1317,7 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e10']/node())"/>
     </input>
     <postProcess>
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
+      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess_last_ensemble']/postProcess/node())"/>
     </postProcess>
   </experiment>
 
@@ -1669,7 +1669,46 @@ SIS_OVERRIDE_EOF
           <variables>
             tos tob ssh MLD_003 sos
           </variables>
-          <analysis endYear="1993" script="/work/Utheri.Wagura/seasonal-workflow/xml/scripts/combine_files_ocean_monthly_199303-199402.sh"/>
+          <analysis endYear="2020" script="/work/Utheri.Wagura/seasonal-workflow/xml/scripts/combine_files_ocean_monthly.sh"/>
+        </timeSeries>
+      </component>
+		
+	<!--	
+      <component type="ocean_daily" start="$(PP_START_YEAR)" source="ocean_daily">
+        <timeSeries freq="daily" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_daily">	
+          <variables>
+            tos tob ssh ssh_max 
+          </variables>
+        </timeSeries>
+      </component>
+      <component type="ocean_cobalt_neus" start="$(PP_START_YEAR)" source="ocean_cobalt_neus">
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_cobalt_neus"/>	
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_B)" source="ocean_cobalt_neus">
+          <variables>
+            chlos o2 no3os po4os zmesoos
+          </variables>
+        </timeSeries>
+      </component>	
+      <component type="ocean_neus" start="$(PP_START_YEAR)" source="ocean_neus">
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_neus"/>	
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_B)" source="ocean_neus">
+          <variables>
+            MLD003 ustar
+          </variables>
+        </timeSeries>
+      </component>-->	
+
+    </postProcess> 
+  </freInclude>
+
+  <freInclude name="NWA12_forecast_2024_04_postprocess_last_ensemble">
+    <postProcess>
+      <component type="ocean_month" source="ocean_month">
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_month">	
+          <variables>
+            tos tob ssh MLD_003 sos
+          </variables>
+          <analysis endYear="2020" script="/work/Utheri.Wagura/seasonal-workflow/xml/scripts/combine_files_ocean_monthly.sh"/>
         </timeSeries>
       </component>
 		

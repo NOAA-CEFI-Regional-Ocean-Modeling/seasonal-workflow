@@ -1,2 +1,4 @@
 logs/*
 __pycache__/
+xml/NWA12_forecast_20*.nc
+xml/NWA12_forecast_19*.nc
