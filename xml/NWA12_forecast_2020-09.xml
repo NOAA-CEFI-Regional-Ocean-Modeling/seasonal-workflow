@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<experimentSuite rtsVersion="4" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <property name="ystart" value="2020"/>
-  <property name="mstart" value="09"/>
-  <property name="atmosspan" value="20200901-20210831"/>
-  <xi:include href="NWA12_forecast_common.xml" xpointer="xpointer(//freInclude[@name='common']/node())"/>
-</experimentSuite>
