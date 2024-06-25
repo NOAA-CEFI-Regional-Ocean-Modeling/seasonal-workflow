@@ -27,7 +27,7 @@
   
   <!--Post-processing  chunk lengths -->
   <property name="CHUNK_LENGTH_A" value="5yr"/>
-  <property name="CHUNK_LENGTH_B" value="20yr"/>
+  <property name="CHUNK_LENGTH_B" value="20yr"/> 
   
   <!--Start year of PP -->
   <property name="PP_START_YEAR" value="1993"/>
