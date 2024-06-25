@@ -2,13 +2,13 @@
 name: nwa12_climatologybcs
 forecasts:
   first_year: 1993
-  last_year: 1994
+  last_year: 2022
   months:
     - 3
     - 6
     - 9
     - 12
-  ensemble_size: 4
+  ensemble_size: 10
 
 # Names of diagnostic files in nudged run output
 # to use to create forecast initial conditions
@@ -19,7 +19,7 @@ snapshots:
 
 climatology:
   first_year: 1993
-  last_year: 1994
+  last_year: 2019
 
 domain:
   south_lat: 5
@@ -29,11 +29,11 @@ domain:
 
 filesystem:
   # Where to put data that will be used to force the model:
-  model_input_data: /work/Utheri.Wagura/mom6/nwa12/forecast_input_data  #CHANGE THIS
+  model_input_data: /work/acr/mom6/nwa12/forecast_input_data
   # Where to put results from the model simulations:
-  model_output_data: /work/Utheri.Wagura/mom6/nwa12/forecast_output_data #CHANGE THIS
+  model_output_data: /work/acr/mom6/nwa12/forecast_output_data
   # Where to put the model input on Gaea:
-  gaea_input_data: /gpfs/f5/cefi/scratch/Utheri.Wagura/northwest_atlantic/nwa12_input/forecast_input_data #CHANGE THIS
+  gaea_input_data: /gpfs/f5/gfdl_med/scratch/Andrew.C.Ross/northwest_atlantic/nwa12_input/forecast_input_data
   # Path to existing daily river files (one file per year, padded):
   yearly_river_files: /work/acr/mom6/nwa12/glofas/glofas_runoff_{year}.nc
   # Path to existing open boundary condition data:
@@ -43,7 +43,7 @@ filesystem:
   # Path to ocean_static file without mask table:
   ocean_static: /home/Andrew.C.Ross/git/nwa12/data/geography/ocean_static.nc
   # Path to the nudged analysis simulation that will be used for initial conditions:
-  analysis_history: /archive/Utheri.Wagura/fre/NWA/2024_04_update/NWA12_physics_2024_04_nudgets-90d/gfdl.ncrc5-intel22-prod/history #CHANGE THIS
+  analysis_history: /archive/acr/fre/NWA/2024_04_update/NWA12_physics_2024_04_nudgets-90d/gfdl.ncrc5-intel22-prod/history
   # Path to model output from individual forecast simulations:
-  forecast_history: /archive/Utheri.Wagura/fre/NWA/2024_04_update/NWA12_forecast_2024_04_{year}-{month:02d}-e{ensemble:02d}/gfdl.ncrc5-intel22-prod/history/ #CHANGE THIS
+  forecast_history: /archive/acr/fre/NWA/2024_04_update/NWA12_forecast_2024_04_{year}-{month:02d}-e{ensemble:02d}/gfdl.ncrc5-intel22-prod/history/
   # TODO:need to have process_spear_job.sh read the path to place processed SPEAR data from here

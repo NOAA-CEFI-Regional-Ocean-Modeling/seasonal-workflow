@@ -26,16 +26,14 @@
   <property name="PROD_SIMTIME" value="1"/>
   
   <!--Post-processing  chunk lengths -->
-  <property name="CHUNK_LENGTH_A" value="1yr"/>
-  <property name="CHUNK_LENGTH_B" value="5yr"/>
-  <!--<property name="CHUNK_LENGTH_A" value="5yr"/>
-  <property name="CHUNK_LENGTH_B" value="20yr"/>  -->
+  <property name="CHUNK_LENGTH_A" value="5yr"/>
+  <property name="CHUNK_LENGTH_B" value="20yr"/>
   
   <!--Start year of PP -->
   <property name="PP_START_YEAR" value="1993"/>
   
   <!-- fre version to be used -->
-  <property name="FRE_VERSION" value="bronx-22"/>
+  <property name="FRE_VERSION" value="bronx-21"/>
 
   <!-- on/off switch for MDBI database -->
   <property name="MDBIswitch" value="off"/>
@@ -63,8 +61,8 @@
   <property name="append_to_setup_csh" value="set fyear=`echo $baseDate | cut -c1-4`"/>
   
   <setup>
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="platforms.xml" xpointer="xpointer(//freInclude/platform[@name='ncrc5.intel22'])"/>
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="platforms.xml" xpointer="xpointer(//freInclude/platform[@name='gfdl.ncrc5-intel22'])"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../nwa-xml/xml_include/xml_building_blocks/platforms.xml" xpointer="xpointer(//freInclude/platform[@name='ncrc5.intel22'])"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../../nwa-xml/xml_include/xml_building_blocks/platforms.xml" xpointer="xpointer(//freInclude/platform[@name='gfdl.ncrc5-intel22'])"/>
   </setup>
 
   <!--= COMPILE =-->
