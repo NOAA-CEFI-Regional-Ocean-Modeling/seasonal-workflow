@@ -33,10 +33,10 @@ foreach var ($variables)
 end
 
 # Get rid of extraneous variables before copying data over
-#ncks -C -O -x -v average_DT,average_T1,average_T2,nv,time_bnds ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc
+ncks -x -v average_DT,average_T1,average_T2,nv,time_bnds ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ${extract_dir}/${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc
 
 # Place all files in a single extracted directory in order to facilitate combining data across ensembles
-nccopy ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ${extract_dir}/${start_y}-${start_m}-${ensemble}.${component}.nc
+#nccopy ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ${extract_dir}/${start_y}-${start_m}-${ensemble}.${component}.nc
 
 # Copy over prexisting climatology data in a format that can be passed to ncdiff
 python cp_climatology.py
