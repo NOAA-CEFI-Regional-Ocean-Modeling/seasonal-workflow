@@ -15,7 +15,7 @@ set start_y='2020'
 set start_m='09'
 set end_y='2021'
 set end_m='08'
-set extract_dir='/archive/Utheri.Wagura/fre/NWA/2023_04/extracted'
+set extract_dir=`echo $in_data_dir | cut -d/ -f 1-6`/extracted
 
 # Get ensemble number from location of data dir
 set ensemble = `echo $in_data_dir | awk '{split($0,a,"/"); print a[7]}' | awk '{split($0,b,"-"); print b[3]}'`
