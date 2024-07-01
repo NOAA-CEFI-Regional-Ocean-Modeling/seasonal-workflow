@@ -31,6 +31,12 @@
   
   <!--Start year of PP -->
   <property name="PP_START_YEAR" value="1993"/>
+
+  <!--Post Processing variables -->
+  <property name="extract_dir" value="/work/Utheri.Wagura/extracted"/>
+  <property name="yend" value="2021"/>
+  <property name="mend" value="08"/>
+  <property name="variables" value="tos,tob,MLD_003,sos"/>
   
   <!-- fre version to be used -->
   <property name="FRE_VERSION" value="bronx-21"/>
@@ -1626,8 +1632,7 @@ SIS_OVERRIDE_EOF
           <variables>
             tos tob ssh MLD_003 sos
           </variables>
-          <!--<analysis endYear="$(ystart)" script="/work/Utheri.Wagura/seasonal-workflow/xml/scripts/combine_files_ocean_monthly.sh"/>-->
-          <analysis endYear="$(ystart)" script="scripts/combine_files_ocean_monthly.sh"/>
+          <analysis endYear="$(ystart)" script="scripts/combine_vars.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(variables) -c ocean_month"/>
         </timeSeries>
       </component>
 		
@@ -1666,7 +1671,7 @@ SIS_OVERRIDE_EOF
           <variables>
             tos tob ssh MLD_003 sos
           </variables>
-          <analysis endYear="$(ystart)" script="scripts/combine_files_ocean_monthly_last_e.sh"/>
+          <analysis endYear="$(ystart)" script="scripts/combine_vars_last_ensemble.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(variables) -c ocean_month"/>
         </timeSeries>
       </component>
 		
