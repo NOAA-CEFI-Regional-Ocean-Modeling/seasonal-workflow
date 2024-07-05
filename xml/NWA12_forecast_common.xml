@@ -1294,9 +1294,9 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e10']/node())"/>
     </input>
-    <postProcess>
+    <!-- <postProcess>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess_last_ensemble']/postProcess/node())"/>
-    </postProcess>
+    </postProcess>-->
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e10" inherit="NWA12_forecast_2024_04">

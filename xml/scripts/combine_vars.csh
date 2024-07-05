@@ -9,7 +9,11 @@
 set in_data_dir
 set argu
 ##---- END VARIABLES SET BY FREPP ----#
-# Get options for script
+
+# Save command line arguments to argu if running script outside of fre
+if ($#argv) set argu = ($argv:q)
+
+# Get command line options
 while ($#argu > 0)
     switch ($argu[1])
         case -c:
@@ -50,8 +54,17 @@ while ($#argu > 0)
     shift argu
 end
 
-# Get ensemble number from location of data dir
-set ensemble = `echo $in_data_dir | awk '{split($0,a,"/"); print a[7]}' | awk '{split($0,b,"-"); print b[3]}'`
+# Get ensemble number from in_data_dir
+#set ensemble = `echo $in_data_dir | awk '{split($0,a,"/"); print a[7]}' | awk '{split($0,b,"-"); print b[3]}'`
+set ensemble = `echo $indir | grep -o -m 1 'e[0-9][0-9]'`
+set ens_num = `echo $ensemble | sed 's/e//`
+#if ( "$ensemble" == "" ) then
+#    echo "ERROR: could not find ensemble number"
+#    exit 1
+#else
+#    ensemble = ${ensemble:0-3}
+#    ens_num = ${ensemblle: -2}
+#endif
 
 # Make a copy of an arbitrary variable to hold data for all the variables. 
 module load nco
@@ -64,4 +77,15 @@ foreach var ($variables)
 end
 
 # Get rid of extraneous variables and copy data over to extract_dir
-ncks -x -h -v average_DT,average_T1,average_T2,nv,time_bnds ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ${extract_dir}/${start_y}-${start_m}-${ensemble}.${component}.nc
+mkdir ${extract_dir}/${component}
+ncks -x -h -v average_DT,average_T1,average_T2,nv,time_bnds ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+
+# Add necessary dimensions to file
+ncap2 -A -s 'defdim("lead",$time.size);lead[$time]=array(0,1,$time)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncap2 -A -s 'defdim("member",1)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncap2 -A -s "member=${ens_num}" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncap2 -A -s 'defdim("init",1)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncap2 -A -s "init = 0 " ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
+ncatted -a units,lead,o,c,"months" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
+ncatted -a calendar,init,o,c,"proleptic_gregorian" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncatted -a units,init,o,c,"days since ${start_y}-${start_m}-01 00:00:00" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 

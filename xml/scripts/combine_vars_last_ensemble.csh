@@ -10,6 +10,10 @@
 set in_data_dir
 set argu
 ##---- END VARIABLES SET BY FREPP ----#
+
+# Save command line arguments to argu if running script outside of fre
+if ($#argv) set argu = ($argv:q)
+
 # Set vars from command line args
 while ($#argu > 0)
     switch ($argu[1])
@@ -66,15 +70,24 @@ foreach var ($variables)
 end
 
 # Get rid of extraneous variables before copying data over
-ncks -x -v average_DT,average_T1,average_T2,nv,time_bnds ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ${extract_dir}/${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc
+ncks -x -v average_DT,average_T1,average_T2,nv,time_bnds ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ${extract_dir}/${component}/${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc
 
-# Copy over prexisting climatology data in a format that can be passed to ncdiff
-python cp_climatology.py
+# Add necessary dimensions to file
+ncap2 -A -s 'defdim("lead",$time.size);lead[$time]=array(0,1,$time)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncap2 -A -s 'defdim("member",1);member=1' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncap2 -A -s 'defdim("init",1)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncap2 -A -s "init = 0 " ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
+ncatted -a units,lead,o,c,"months" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
+ncatted -a calendar,init,o,c,"proleptic_gregorian" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncatted -a units,init,o,c,"days since ${start_y}-${start_m}-01 00:00:00" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
 
-# Calculate anomalies across each ensemble
-foreach i (`seq -w 01 10`)
-    ncdiff ${extract_dir}/${start_y}-${start_m}-e${i}.${component}.nc ${extract_dir}/climatology_${component}_1993_2019.nc ${extract_dir}/anom_e${i}.nc
-end
+# Create forecaste and climatology
+#python ../postprocess_combine_fields.py
 
-# Combine anomaly and ensemble data to create forecast
-nces ${extract_dir}/anom_e??.nc ${extract_dir}/forecast_anomalies.nc
+## Calculate anomalies across each ensemble
+#foreach i (`seq -w 01 10`)
+#    ncdiff ${extract_dir}/${component}/${start_y}-${start_m}-e${i}.${component}.nc ${extract_dir}/${component}/climatology_${component}_1993_2019.nc ${extract_dir}/${component}/anom_e${i}.nc
+#end
+#
+## Combine anomaly and ensemble data to create forecast
+#nces ${extract_dir}/${component}/anom_e??.nc ${extract_dir}/${component}/forecast_anomalies.nc
