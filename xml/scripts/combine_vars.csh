@@ -56,8 +56,8 @@ end
 
 # Get ensemble number from in_data_dir
 #set ensemble = `echo $in_data_dir | awk '{split($0,a,"/"); print a[7]}' | awk '{split($0,b,"-"); print b[3]}'`
-set ensemble = `echo $indir | grep -o -m 1 'e[0-9][0-9]'`
-set ens_num = `echo $ensemble | sed 's/e//`
+set ensemble = `echo $in_data_dir | grep -o -m 1 'e[0-9][0-9]'`
+set ens_num = `echo $ensemble | sed 's/e//'`
 #if ( "$ensemble" == "" ) then
 #    echo "ERROR: could not find ensemble number"
 #    exit 1
@@ -77,15 +77,24 @@ foreach var ($variables)
 end
 
 # Get rid of extraneous variables and copy data over to extract_dir
-mkdir ${extract_dir}/${component}
+if ( ! -d ${extract_dir}/${component} ) then
+    mkdir ${extract_dir}/${component} 
+endif
+
+if ( -f ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc ) then
+    rm ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+endif 
 ncks -x -h -v average_DT,average_T1,average_T2,nv,time_bnds ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
 
 # Add necessary dimensions to file
-ncap2 -A -s 'defdim("lead",$time.size);lead[$time]=array(0,1,$time)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
-ncap2 -A -s 'defdim("member",1)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
-ncap2 -A -s "member=${ens_num}" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
-ncap2 -A -s 'defdim("init",1)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
-ncap2 -A -s "init = 0 " ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
-ncatted -a units,lead,o,c,"months" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
-ncatted -a calendar,init,o,c,"proleptic_gregorian" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
-ncatted -a units,init,o,c,"days since ${start_y}-${start_m}-01 00:00:00" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
+ncap2 -A -h -s 'defdim("lead",$time.size) ; lead[$time]=array(0,1,$time)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncap2 -A -h -s 'defdim("member",1)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncap2 -A -h -s "member=${ens_num}" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncap2 -A -h -s 'defdim("init",1)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncap2 -A -h -s "init = 0 " ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
+ncatted -h -a units,lead,o,c,"months" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
+ncatted -h -a calendar,init,o,c,"proleptic_gregorian" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncatted -h -a units,init,o,c,"days since ${start_y}-${start_m}-01 00:00:00" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
+
+# Remove files created while adding dimensions to ensemble file
+rm ${extract_dir}/${component}/*pid*

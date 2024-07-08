@@ -56,7 +56,9 @@ while ($#argu > 0)
 end
 
 # Get ensemble number from location of data dir
-set ensemble = `echo $in_data_dir | awk '{split($0,a,"/"); print a[7]}' | awk '{split($0,b,"-"); print b[3]}'`
+#set ensemble = `echo $in_data_dir | awk '{split($0,a,"/"); print a[7]}' | awk '{split($0,b,"-"); print b[3]}'`
+set ensemble = `echo $in_data_dir | grep -o -m 1 'e[0-9][0-9]'`
+set ens_num = `echo $ensemble | sed 's/e//`
 
 # Make a copy of an arbitray variable to hold data for all the variables. 
 module load nco
