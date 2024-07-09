@@ -13,7 +13,7 @@ set argu
 # Save command line arguments to argu if running script outside of fre
 if ($#argv) set argu = ($argv:q)
 
-# Get command line options
+# Set vars from command line args
 while ($#argu > 0)
     switch ($argu[1])
         case -c:

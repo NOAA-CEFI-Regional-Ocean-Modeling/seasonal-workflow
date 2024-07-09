@@ -1,6 +1,7 @@
 <freInclude xmlns:xi="http://www.w3.org/2003/XInclude" name="common">
   <!--
   To run postprocessing, change the variables in the section labelled POST PROCESSING VARIABLES
+  Be sure to run the edit_coordinates.py script before passing the ensemble files to postprocess_combine_files.py
   -->
 
   <!-- git tag for general component source code-->
@@ -1637,7 +1638,7 @@ SIS_OVERRIDE_EOF
           <variables>
             tos tob ssh MLD_003 sos
           </variables>
-          <analysis endYear="$(ystart)" script="scripts/combine_vars.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(variables) -c ocean_month"/>
+          <analysis endYear="$(ystart)" script="scripts/combine_vars.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(ocean_month_variables) -c ocean_month"/>
         </timeSeries>
       </component>
 		
