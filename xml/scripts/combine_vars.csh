@@ -80,14 +80,14 @@ endif
 if ( -f ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc ) then
     rm ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
 endif 
-ncks -x -h -v average_DT,average_T1,average_T2,nv,time_bnds ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+ncks -x -h -v average_DT,average_T1,average_T2,nv,time_bnds ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}_wrong_coords.nc
 
 # Add necessary dimensions to file
-ncap2 -A -h -s 'defdim("lead",$time.size) ; lead[$time]=array(0,1,$time)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
-ncap2 -A -h -s 'defdim("member",1)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
-ncap2 -A -h -s "member=${ens_num}" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
-ncap2 -A -h -s 'defdim("init",1)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
-ncap2 -A -h -s "init = 0 " ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
-ncatted -h -a units,lead,o,c,"months" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
-ncatted -h -a calendar,init,o,c,"proleptic_gregorian" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
-ncatted -h -a units,init,o,c,"days since ${start_y}-${start_m}-01 00:00:00" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
+ncap2 -A -h -s 'defdim("lead",$time.size) ; lead[$time]=array(0,1,$time)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}_wrong_coords.nc
+ncap2 -A -h -s 'defdim("member",1)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}_wrong_coords.nc
+ncap2 -A -h -s "member=${ens_num}" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}_wrong_coords.nc
+ncap2 -A -h -s 'defdim("init",1)' ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}_wrong_coords.nc
+ncap2 -A -h -s "init = 0 " ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}_wrong_coords.nc 
+ncatted -h -a units,lead,o,c,"months" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}_wrong_coords.nc 
+ncatted -h -a calendar,init,o,c,"proleptic_gregorian" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}_wrong_coords.nc
+ncatted -h -a units,init,o,c,"days since ${start_y}-${start_m}-01 00:00:00" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}_wrong_coords.nc 

@@ -1638,7 +1638,7 @@ SIS_OVERRIDE_EOF
           <variables>
             tos tob ssh MLD_003 sos
           </variables>
-          <analysis endYear="$(ystart)" script="scripts/combine_vars.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(ocean_month_variables) -c ocean_month"/>
+          <analysis endYear="$(ystart)" script="$(scripts_dir)/combine_vars.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(ocean_month_variables) -c ocean_month"/>
         </timeSeries>
       </component>
 		
