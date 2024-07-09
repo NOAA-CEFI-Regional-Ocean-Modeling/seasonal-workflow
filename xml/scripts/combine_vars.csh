@@ -55,19 +55,14 @@ while ($#argu > 0)
 end
 
 # Get ensemble number from in_data_dir
-#set ensemble = `echo $in_data_dir | awk '{split($0,a,"/"); print a[7]}' | awk '{split($0,b,"-"); print b[3]}'`
 set ensemble = `echo $in_data_dir | grep -o -m 1 'e[0-9][0-9]'`
 set ens_num = `echo $ensemble | sed 's/e//'`
-#if ( "$ensemble" == "" ) then
-#    echo "ERROR: could not find ensemble number"
-#    exit 1
-#else
-#    ensemble = ${ensemble:0-3}
-#    ens_num = ${ensemblle: -2}
-#endif
 
 # Make a copy of an arbitrary variable to hold data for all the variables. 
 module load nco
+if ( -f ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ) then
+    rm ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc
+endif 
 nccopy ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}.${copyvar}.nc ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc
 # NOTE: Above line retains the netcdf_classic format that the model outputs. To change the format to netcdf4, add the -4 flag
 
@@ -81,6 +76,7 @@ if ( ! -d ${extract_dir}/${component} ) then
     mkdir ${extract_dir}/${component} 
 endif
 
+# NOTE: ncks will fail if output file already exists, so rm file before running it
 if ( -f ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc ) then
     rm ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
 endif 
@@ -95,6 +91,3 @@ ncap2 -A -h -s "init = 0 " ${extract_dir}/${component}/${start_y}-${start_m}-${e
 ncatted -h -a units,lead,o,c,"months" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
 ncatted -h -a calendar,init,o,c,"proleptic_gregorian" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
 ncatted -h -a units,init,o,c,"days since ${start_y}-${start_m}-01 00:00:00" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc 
-
-# Remove files created while adding dimensions to ensemble file
-rm ${extract_dir}/${component}/*pid*

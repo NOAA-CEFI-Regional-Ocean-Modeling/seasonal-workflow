@@ -1,4 +1,7 @@
 <freInclude xmlns:xi="http://www.w3.org/2003/XInclude" name="common">
+  <!--
+  To run postprocessing, change the variables in the section labelled POST PROCESSING VARIABLES
+  -->
 
   <!-- git tag for general component source code-->
   <property name="RELEASE" value="2023.04"/>
@@ -32,11 +35,13 @@
   <!--Start year of PP -->
   <property name="PP_START_YEAR" value="1993"/>
 
-  <!--Post Processing variables -->
+  <!--POST PROCESSING VARIABLES -->
   <property name="extract_dir" value="/work/Utheri.Wagura/extracted"/>
   <property name="yend" value="2021"/>
   <property name="mend" value="08"/>
-  <property name="variables" value="tos,tob,MLD_003,sos"/>
+  <property name="ocean_month_variables" value="tos,tob,MLD_003,sos,ssh"/>
+  <property name="scripts_dir" value="/work/Utheri.Wagura/seasonal-workflow/xml/scripts"/>
+  <!--POST PROCESSING VARIABLES -->
   
   <!-- fre version to be used -->
   <property name="FRE_VERSION" value="bronx-21"/>
@@ -1671,7 +1676,7 @@ SIS_OVERRIDE_EOF
           <variables>
             tos tob ssh MLD_003 sos
           </variables>
-          <analysis endYear="$(ystart)" script="scripts/combine_vars_last_ensemble.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(variables) -c ocean_month"/>
+          <analysis endYear="$(ystart)" script="$(scripts_dir)/combine_vars_last_ensemble.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(ocean_month_variables) -c ocean_month"/>
         </timeSeries>
       </component>
 		

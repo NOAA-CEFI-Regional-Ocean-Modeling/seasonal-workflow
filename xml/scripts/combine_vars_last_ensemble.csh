@@ -62,6 +62,9 @@ set ens_num = `echo $ensemble | sed 's/e//`
 
 # Make a copy of an arbitray variable to hold data for all the variables. 
 module load nco
+if ( -f ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ) then
+    rm ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc
+endif 
 nccopy ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}.${copyvar}.nc ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc
 # NOTE: Above line retains the netcdf_classic format that the model outputs. To change the format to netcdf4, add the -4 flag
 # NOTE: If running experiment with more than 9 ensemble members, update naming scheme
@@ -72,6 +75,9 @@ foreach var ($variables)
 end
 
 # Get rid of extraneous variables before copying data over
+if ( -f ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc ) then
+    rm ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
+endif 
 ncks -x -v average_DT,average_T1,average_T2,nv,time_bnds ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ${extract_dir}/${component}/${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc
 
 # Add necessary dimensions to file
