@@ -405,6 +405,21 @@
         "ocean_model_z", "vhml",       "vhml",       "ocean_month_z","all", "mean", "none", 2
         "ocean_model_z", "rhopot0",    "rhopot0",    "ocean_month_z","all", "mean", "none", 2 
         "ocean_model_z", "so",         "so",         "ocean_month_z","all", "mean", "none", 2
+
+        # Extra daily diagnostics specifically for the Northeast US region.
+        # 3D diags are only from surface to 400 m level. 
+        "ocean_neus", 1, "days",  1, "days", "time"
+        # 2D
+        "ocean_model", "MLD_003",   "MLD_003",   "ocean_neus", "all", "mean", "-76.47 -64.48 34.89 45.78 0 400",2
+        "ocean_model", "MLD_EN1",   "MLD_EN1",   "ocean_neus", "all", "mean", "-76.47 -64.48 34.89 45.78 0 400",2
+        "ocean_model", "ustar",     "ustar",     "ocean_neus", "all", "mean", "-76.47 -64.48 34.89 45.78 0 400",2
+        "ocean_model", "rsntds",    "rsntds",    "ocean_neus", "all", "mean", "-76.47 -64.48 34.89 45.78 0 400",2
+        # 3D
+        "ocean_model", "volcello",  "volcello",  "ocean_neus", "all", "mean", "-76.47 -64.48 34.89 45.78 0 400",2
+        "ocean_model", "rhopot0",   "rhopot0",   "ocean_neus", "all", "mean", "-76.47 -64.48 34.89 45.78 0 400",2
+        "ocean_model", "rhoinsitu", "rhoinsitu", "ocean_neus", "all", "mean", "-76.47 -64.48 34.89 45.78 0 400",2
+        "ocean_model", "thetao",    "thetao",    "ocean_neus", "all", "mean", "-76.47 -64.48 34.89 45.78 0 400",2
+        "ocean_model", "so",        "so",        "ocean_neus", "all", "mean", "-76.47 -64.48 34.89 45.78 0 400",2
       </diagTable>
       <!-- Grid files-->
       <dataFile label="gridSpec" target="INPUT/" chksum="" size="" timestamp="">

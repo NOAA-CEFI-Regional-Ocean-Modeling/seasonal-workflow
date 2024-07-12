@@ -1,14 +1,14 @@
 name: nwa12_cobalt
 
 forecasts:
-  first_year: 1994
-  last_year: 2003
+  first_year: 1993
+  last_year: 2022
   months:
-    #- 3
-    #- 6
+    - 3
+    - 6
     - 9
     - 12
-  ensemble_size: 1
+  ensemble_size: 5
 
 snapshots:
   - ocean_month

@@ -8,11 +8,18 @@ import xarray
 
 
 # Expect, and only extract, these variables from the given domain
+# (TODO: this could probably go in config)
 _DOMAIN_VARIABLES = {
-    'ocean_month': ['tos', 'tob', 'sos', 'MLD_003', 'ssh'], # ssh or zos
+    'ocean_month': ['tos', 'tob', 'sos', 'sob', 'MLD_003', 'ssh'], # ssh or zos
     'ocean_daily': ['tos', 'tob', 'ssh', 'ssh_max'],
-    'ocean_cobalt_neus': ['chlos', 'o2', 'no3os', 'po4os', 'zmesoos'],
-    'ocean_neus': ['MLD_003', 'ustar']
+    'ocean_cobalt_btm': ['btm_o2', 'btm_co3_sol_arag', 'btm_co3_ion', 'btm_htotal'],
+    'ocean_cobalt_omip_sfc': ['chlos', 'no3os', 'phos'],
+    'ocean_cobalt_neus': ['chlos', 'no3os', 'po4os', 'zmesoos', 
+                          'nsmp_100', 'nmdp_100', 'nlgp_100', 
+                          'sfc_no3lim_smp', 'sfc_no3lim_mdp', 'sfc_no3lim_lgp', 
+                          'sfc_irrlim_lgp', 'sfc_irrlim_mdp', 'sfc_irrlim_smp'],
+    'ocean_neus': ['MLD_003', 'ustar'],
+    'ocean_cobalt_daily_2d': ['chlos', 'btm_o2', 'btm_co3_sol_arag', 'btm_co3_ion', 'btm_htotal']
 }
 
 # Using /vftmp/$USER as a cache.
@@ -81,12 +88,15 @@ class ForecastRun:
             infile = self.tmp_dir / self.tar_name
         print(f'process_file({infile})')
         ds = xarray.open_dataset(infile)[_DOMAIN_VARIABLES[self.domain]]
-        ds['ens'] = int(self.ens)
-        ds['mstart'] = int(self.mstart)
-        ds['ystart'] = int(self.ystart)
+        ds['member'] = int(self.ens)
         ds['init'] = dt.datetime(int(self.ystart), int(self.mstart), 1)   
         ds['lead'] = (('time', ), np.arange(len(ds['time'])))
-        ds.to_netcdf(outfile)
+        ds['lead'].attrs['units'] = 'months'
+        ds = ds.swap_dims({'time': 'lead'}).set_coords(['init', 'member'])
+        ds = ds.expand_dims('init')
+        ds = ds.transpose(*(['init', 'lead'] + [d for d in ds.dims if d not in ['init', 'lead']]))
+        ds = ds.rename({'time': 'verif'})
+        ds.to_netcdf(outfile, unlimited_dims='init')
         ds.close()
 
 
