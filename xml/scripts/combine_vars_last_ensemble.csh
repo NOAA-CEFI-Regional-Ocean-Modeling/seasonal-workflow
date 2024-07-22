@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-#SBATCH --job-name=combine_files
+#SBATCH --job-name=combine_files_last_ensemble
 #SBATCH --partition=analysis
 #SBATCH --output=%x.o%j
 #SBATCH --time=05:00:00
@@ -8,6 +8,8 @@
 ##---- VARIABLES SET BY FREPP ----#
 set in_data_dir
 set argu
+set frexml
+set descriptor
 ##---- END VARIABLES SET BY FREPP ----#
 
 # Save command line arguments to argu if running script outside of fre
@@ -47,6 +49,14 @@ while ($#argu > 0)
             shift argu
             set extract_dir = "$argu[1]"
             breaksw
+	case -f:
+	    shift argu
+	    set config_file = "$argu[1]"
+	    breaksw
+	case -r
+	    shift argu
+	    set scripts_dir = "$argu[1]"
+	    breaksw
         default:
             echo "Invalid option: $argu[1]" >&2
             exit 1
@@ -54,9 +64,10 @@ while ($#argu > 0)
     shift argu
 end
 
-# Get ensemble number from in_data_dir
-set ensemble = `echo $in_data_dir | grep -o -m 1 'e[0-9][0-9]'`
+# Get ensemble number from in_data_dir, get pp script dir from xml path
+set ensemble = `echo $descriptor | grep -o -m 1 'e[0-9][0-9]'`
 set ens_num = `echo $ensemble | sed 's/e//'`
+set xml_dir = ${frexml:h}
 
 # Make a copy of an arbitrary variable to hold data for all the variables. 
 module load nco
@@ -72,10 +83,15 @@ foreach var ($variables)
 end
 
 # Get rid of extraneous variables and copy data over to extract_dir
+if ( ! -d ${extract_dir}/${component} ) then
+    echo "ERROR: Make sure all combined netCDF files for previous ensembles exist before running last ensemble"
+    exit 1
+endif
 # NOTE: ncks will fail if output file already exists, so rm file before running it
 if ( -f ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc ) then
     rm ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
 endif 
+
 ncks -x -h -v average_DT,average_T1,average_T2,nv,time_bnds ${in_data_dir}${component}.${start_y}${start_m}-${end_y}${end_m}-${ensemble}.nc ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}_wrong_coords.nc
 
 # Add necessary dimensions to file
@@ -88,5 +104,11 @@ ncatted -h -a units,lead,o,c,"months" ${extract_dir}/${component}/${start_y}-${s
 ncatted -h -a calendar,init,o,c,"proleptic_gregorian" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}_wrong_coords.nc
 ncatted -h -a units,init,o,c,"days since ${start_y}-${start_m}-01 00:00:00" ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}_wrong_coords.nc 
 
-# Create forecast and climatology
-#python ../postprocess_combine_fields.py
+# Edit metadata across all files to prepare netcdf files for postprocess_combine_fields.py script
+module load miniforge
+conda activate seasonalenv
+python ${scripts_dir}/edit_coordinates.py -c ${config_file} -m ${start_m} -d ${component} 
+rm ${extract_dir}/${component}/*_wrong_coords.nc
+
+# Create forecast and climatology after waiting for files to take on full dimensions
+python ${xml_dir:h}/postprocess_combine_fields.py -c ${config_file}

@@ -37,11 +37,7 @@
   <property name="PP_START_YEAR" value="1993"/>
 
   <!--POST PROCESSING VARIABLES -->
-  <property name="extract_dir" value="/work/Utheri.Wagura/extracted"/>
-  <property name="yend" value="2021"/>
-  <property name="mend" value="08"/>
   <property name="ocean_month_variables" value="tos,tob,MLD_003,sos,ssh"/>
-  <property name="scripts_dir" value="/work/Utheri.Wagura/seasonal-workflow/xml/scripts"/>
   <!--POST PROCESSING VARIABLES -->
   
   <!-- fre version to be used -->
@@ -1315,9 +1311,9 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e10']/node())"/>
     </input>
-    <!-- <postProcess>
+    <postProcess>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess_last_ensemble']/postProcess/node())"/>
-    </postProcess>-->
+    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e10" inherit="NWA12_forecast_2024_04">
@@ -1692,7 +1688,7 @@ SIS_OVERRIDE_EOF
           <variables>
             tos tob ssh MLD_003 sos
           </variables>
-          <analysis endYear="$(ystart)" script="$(scripts_dir)/combine_vars_last_ensemble.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(ocean_month_variables) -c ocean_month"/>
+          <analysis endYear="$(ystart)" script="$(scripts_dir)/combine_vars_last_ensemble.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(ocean_month_variables) -c ocean_month -r $(scripts_dir) -f $(config_file)"/>
         </timeSeries>
       </component>
 		

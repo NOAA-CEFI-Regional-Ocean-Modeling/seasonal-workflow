@@ -8,6 +8,7 @@
 ##---- VARIABLES SET BY FREPP ----#
 set in_data_dir
 set argu
+set descriptor
 ##---- END VARIABLES SET BY FREPP ----#
 
 # Save command line arguments to argu if running script outside of fre
@@ -55,7 +56,7 @@ while ($#argu > 0)
 end
 
 # Get ensemble number from in_data_dir
-set ensemble = `echo $in_data_dir | grep -o -m 1 'e[0-9][0-9]'`
+set ensemble = `echo $descriptor | grep -o -m 1 'e[0-9][0-9]'`
 set ens_num = `echo $ensemble | sed 's/e//'`
 
 # Make a copy of an arbitrary variable to hold data for all the variables. 
