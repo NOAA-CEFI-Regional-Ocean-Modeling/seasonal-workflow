@@ -87,6 +87,7 @@ if ( ! -d ${extract_dir}/${component} ) then
     echo "ERROR: Make sure all combined netCDF files for previous ensembles exist before running last ensemble"
     exit 1
 endif
+
 # NOTE: ncks will fail if output file already exists, so rm file before running it
 if ( -f ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc ) then
     rm ${extract_dir}/${component}/${start_y}-${start_m}-${ensemble}.${component}.nc
@@ -106,7 +107,7 @@ ncatted -h -a units,init,o,c,"days since ${start_y}-${start_m}-01 00:00:00" ${ex
 
 # Edit metadata across all files to prepare netcdf files for postprocess_combine_fields.py script
 module load miniforge
-conda activate seasonalenv
+conda activate /nbhome/Utheri.Wagura/.conda/envs/seasonalenv
 python ${scripts_dir}/edit_coordinates.py -c ${config_file} -m ${start_m} -d ${component} 
 rm ${extract_dir}/${component}/*_wrong_coords.nc
 

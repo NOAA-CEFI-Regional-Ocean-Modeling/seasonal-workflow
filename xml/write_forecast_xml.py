@@ -1,6 +1,6 @@
 from calendar import isleap, monthrange
 from textwrap import dedent
-
+import os
 
 def write_xml(common, ystart, mstart, extract_dir, scripts_dir,config_file):
     ystart = int(ystart)
@@ -25,10 +25,15 @@ def write_xml(common, ystart, mstart, extract_dir, scripts_dir,config_file):
     # Last day is always the last day of the last month
     dlast = monthrange(yend, mlast)[1]
     # Make sure that scripts and extract paths end in backslash
-    if scripts_dir[-1] == '/':
-        scripts_dir = scripts_dir[:-1] 
-    if extract_dir[-1] == '/':
-        extract_dir = extract_dir[:-1]
+    scripts_dir = os.path.normpath(scripts_dir)
+    extract_dir = os.path.normpath(extract_dir)
+    #if scripts_dir[-1] == '/':
+    #    scripts_dir = scripts_dir[:-1] 
+    #if extract_dir[-1] == '/':
+    #    extract_dir = extract_dir[:-1]
+    # Make sure that the extract_dir ends in "extracted"
+    if os.path.basename(extract_dir) != 'extracted':
+        extract_dir += '/extracted'
     # Fill out the XML template
     xml = dedent(f'''    <?xml version="1.0"?>
     <experimentSuite rtsVersion="4" xmlns:xi="http://www.w3.org/2001/XInclude">
