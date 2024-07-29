@@ -1675,7 +1675,7 @@ SIS_OVERRIDE_EOF
           <variables>
             tos tob ssh MLD_003 sos
           </variables>
-          <analysis endYear="$(ystart)" script="$(scripts_dir)/combine_vars.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(ocean_month_variables) -c ocean_month"/>
+          <analysis startYear="$(ystart)" endYear="$(ystart)" script="$(scripts_dir)/combine_vars.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(ocean_month_variables) -c ocean_month"/>
         </timeSeries>
       </component>
 		
@@ -1714,7 +1714,7 @@ SIS_OVERRIDE_EOF
           <variables>
             tos tob ssh MLD_003 sos
           </variables>
-          <analysis endYear="$(ystart)" script="$(scripts_dir)/combine_vars_last_ensemble.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(ocean_month_variables) -c ocean_month -r $(scripts_dir) -f $(config_file)"/>
+          <analysis startYear="$(ystart)" endYear="$(ystart)" script="$(scripts_dir)/combine_vars_last_ensemble.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(ocean_month_variables) -c ocean_month -r $(scripts_dir) -f $(config_file)"/>
         </timeSeries>
       </component>
 		
