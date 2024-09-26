@@ -1,4 +1,34 @@
 <freInclude xmlns:xi="http://www.w3.org/2003/XInclude" name="common">
+  <!--
+  To run postprocessing on PPAN:
+
+  1.) Make sure each domain of interest in the POST PROCESSING VARIABLES section has the correct variables.
+  
+  2.) For N ensemble members, a forecast initialized in September of 2020, and the 2024_04_update version of this xml (see the fre_stem tag or the experiment names below to confirm you are using this version), run the following command: 
+
+      frepp -t 20200901 -x NWA12_forecast_2020_09.xml -d <path-to-historyfiles> -T prod -p gfdl.ncrc5-intel22 NWA12_forecast_2024_04_2020-09-e<ensmble number>, where <ensemble member> is less than N
+
+          2a.) If history files exist for each ensemble member, post processing for ensemble members 1 through N-1 can be done with the following for loops:
+	      bash: for e in {01..N-1}; do frepp -t 20200901 -x NWA12_forecast_2020_09.xml -d <path-to-historyfiles> -T prod -p gfdl.ncrc5-intel22 NWA12_forecast_2024_04_2020-09-e${e}; done
+	      tcsh: foreach e (`seq -w 01 N-1`); frepp -t 20200901 -x NWA12_forecast_2020_09.xml -d <path-to-historyfiles> -T prod -p gfdl.ncrc5-intel22 NWA12_forecast_2024_04_2020-09-e${e}; end
+ 
+      Be sure to change the year and month passed to -t, -x, and the experiment name if running post processing for an experiment initialized during a different time
+ 
+  3.) After post processing runs successfully for ensemble members 1 through N-1 - there should be N-1 files in your extract_dir ending in "_wrong_coords.nc" - you can then run: 
+
+		frepp -t 20200901 -x NWA12_forecast_2020_09.xml -d <path-to-historyfiles> -T prod -p gfdl.ncrc5-intel22 NWA12_forecast_2024_04_2020-09-eN  
+
+      where N is the last ensemble member to finish post processing.
+
+  NOTE : In order to run the analysis scripts corectly, fre MUST recieve the initialization date of the experiment via the -t flag in YYYYMMDD format. If fre does not recieve this flag AND if the the endYear attribute is not passed to the analysis script below ( this should already be set ), you will likely recieve a chunking issue that prevents the analysis script from running. 
+
+  If you recieve errors mentioning "missing chunks" or "skipping accumalative <path-to-script> because ending analysis year (year) != ending time specified on the command line", please attempt the following steps to debug the issue: 
+
+     1.) rm the experiment directory containing the postProcess/analysis scripts, stdout, and state files. This should be located in ~/$(FRE_STEM)/$(experiment name)
+     2.) Make sure that your pp directory ONLY contains variable files for the experiment of interest. These files should take the form $(component).$(timespan).$(var).nc ( so, for example, they might say "ocean_month.199303-199402.MLD_003.nc"). Take extra care to ensure that a combined variable file does not exist - these are created by the analysis script and have e$(ensemble number) in their name - and that post processing files for different time chunks do not exist ( the timespan in these files will NOT begin at the same time as the timepan you entered in the -t flag). 
+     3.) Make sure you have BOTH -t flag in your frepp command and the "endYear=$(ystart)" attribute in the analysis script passed to your experiment in the postProcessing section below. While counter-intuitive, fre tends to skip the analysis script for non Jan 1st initialized runs if the "endYear" attribute is not set to the same year that you initialized the experiment, so the "$(ystart)" variable is not a typo. 
+
+  -->
 
   <!-- git tag for general component source code-->
   <property name="RELEASE" value="2023.04"/>
@@ -26,11 +56,15 @@
   <property name="PROD_SIMTIME" value="1"/>
   
   <!--Post-processing  chunk lengths -->
-  <property name="CHUNK_LENGTH_A" value="5yr"/>
+  <property name="CHUNK_LENGTH_A" value="1yr"/>
   <property name="CHUNK_LENGTH_B" value="20yr"/> 
   
   <!--Start year of PP -->
   <property name="PP_START_YEAR" value="1993"/>
+
+  <!--POST PROCESSING VARIABLES -->
+  <property name="ocean_month_variables" value="tos,tob,MLD_003,sos,ssh"/>
+  <!--POST PROCESSING VARIABLES -->
   
   <!-- fre version to be used -->
   <property name="FRE_VERSION" value="bronx-21"/>
@@ -518,6 +552,9 @@ SIS_OVERRIDE_EOF
         </run>
       </regression>
     </runtime>
+    <postProcess>
+       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess']/postProcess/node())"/>
+    </postProcess>
   </experiment>
 
   <!-- Data files for forecasts with climatology boundary conditions-->
@@ -1300,6 +1337,9 @@ SIS_OVERRIDE_EOF
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
       <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e10']/node())"/>
     </input>
+    <postProcess>
+      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='NWA12_forecast_2024_04_postprocess_last_ensemble']/postProcess/node())"/>
+    </postProcess>
   </experiment>
 
   <experiment name="NWA12_forecast_2024_04_obcs_$(ystart)-$(mstart)-e10" inherit="NWA12_forecast_2024_04">
@@ -1627,5 +1667,84 @@ SIS_OVERRIDE_EOF
       </dataFile>
     </input>
   </experiment>
+
+  <freInclude name="NWA12_forecast_2024_04_postprocess">
+    <postProcess>
+      <component type="ocean_month" source="ocean_month">
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_month">	
+          <variables>
+            tos tob ssh MLD_003 sos
+          </variables>
+          <analysis startYear="$(ystart)" endYear="$(ystart)" script="$(scripts_dir)/combine_vars.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(ocean_month_variables) -c ocean_month"/>
+        </timeSeries>
+      </component>
+		
+	<!--	
+      <component type="ocean_daily" start="$(PP_START_YEAR)" source="ocean_daily">
+        <timeSeries freq="daily" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_daily">	
+          <variables>
+            tos tob ssh ssh_max 
+          </variables>
+        </timeSeries>
+      </component>
+      <component type="ocean_cobalt_neus" start="$(PP_START_YEAR)" source="ocean_cobalt_neus">
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_cobalt_neus"/>	
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_B)" source="ocean_cobalt_neus">
+          <variables>
+            chlos o2 no3os po4os zmesoos
+          </variables>
+        </timeSeries>
+      </component>	
+      <component type="ocean_neus" start="$(PP_START_YEAR)" source="ocean_neus">
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_neus"/>	
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_B)" source="ocean_neus">
+          <variables>
+            MLD003 ustar
+          </variables>
+        </timeSeries>
+      </component>-->	
+
+    </postProcess> 
+  </freInclude>
+
+  <freInclude name="NWA12_forecast_2024_04_postprocess_last_ensemble">
+    <postProcess>
+      <component type="ocean_month" source="ocean_month">
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_month">	
+          <variables>
+            tos tob ssh MLD_003 sos
+          </variables>
+          <analysis startYear="$(ystart)" endYear="$(ystart)" script="$(scripts_dir)/combine_vars_last_ensemble.csh -s $(ystart) -m $(mstart) -e $(yend) -n $(mend) -d $(extract_dir) -v $(ocean_month_variables) -c ocean_month -r $(scripts_dir) -f $(config_file)"/>
+        </timeSeries>
+      </component>
+		
+	<!--	
+      <component type="ocean_daily" start="$(PP_START_YEAR)" source="ocean_daily">
+        <timeSeries freq="daily" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_daily">	
+          <variables>
+            tos tob ssh ssh_max 
+          </variables>
+        </timeSeries>
+      </component>
+      <component type="ocean_cobalt_neus" start="$(PP_START_YEAR)" source="ocean_cobalt_neus">
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_cobalt_neus"/>	
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_B)" source="ocean_cobalt_neus">
+          <variables>
+            chlos o2 no3os po4os zmesoos
+          </variables>
+        </timeSeries>
+      </component>	
+      <component type="ocean_neus" start="$(PP_START_YEAR)" source="ocean_neus">
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_A)" source="ocean_neus"/>	
+        <timeSeries freq="monthly" chunkLength="$(CHUNK_LENGTH_B)" source="ocean_neus">
+          <variables>
+            MLD003 ustar
+          </variables>
+        </timeSeries>
+      </component>-->	
+
+    </postProcess> 
+  </freInclude>
+
 </freInclude>
   

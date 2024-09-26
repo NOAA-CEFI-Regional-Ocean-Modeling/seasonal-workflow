@@ -1,3 +1,6 @@
 logs/*
 __pycache__/
+xml/NWA12_forecast_20*.xml
+xml/NWA12_forecast_19*.xml
+**/_Inline/
 *.png
