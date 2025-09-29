@@ -4,7 +4,6 @@ from argparse import ArgumentParser, Namespace
 from functools import partial
 from pathlib import Path
 from subprocess import CompletedProcess, run
-from typing import Any
 
 import numpy as np
 import xarray
@@ -28,15 +27,21 @@ def check_futures(futures: list[concurrent.futures.Future]) -> None:
             logger.error(f'Task generated an exception: {e}')
 
 
-def process_ensmean(config: Config, cmdargs: Namespace, var: str) -> list[Path]:
+def process_ensmean(
+    config: Config,
+    cmdargs: Namespace,
+    var: str,
+    mon: int = 0
+) -> list[Path]:
     # Large files: ensemble average, then concatenate averages
     tmp = Path(os.environ['TMPDIR'])
     model_output_data = config.filesystem.forecast_output_data
     threads = cmdargs.threads
     members = []
     futures = []
+    months = config.retrospective_forecasts.months if mon == 0 else [mon]
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
-        for m in config.retrospective_forecasts.months:
+        for m in months:
             for y in range(
                 config.retrospective_forecasts.first_year,
                 config.retrospective_forecasts.last_year + 1,
@@ -68,13 +73,19 @@ def process_ensmean(config: Config, cmdargs: Namespace, var: str) -> list[Path]:
     return members
 
 
-def process_all_members(config: Any, cmdargs: Namespace, var: str) -> list[Path]:
+def process_all_members(
+    config: Config,
+    cmdargs: Namespace,
+    var: str,
+    mon: int = 0
+) -> list[Path]:
     nens = config.retrospective_forecasts.ensemble_size
     tmp = Path(os.environ['TMPDIR'])
     model_output_data = config.filesystem.forecast_output_data
     threads = cmdargs.threads
     members = []
     futures = []
+    months = config.retrospective_forecasts.months if mon == 0 else [mon]
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
         # Regular files: concatenate initializations together
         for e in range(1, nens + 1):
@@ -85,7 +96,7 @@ def process_all_members(config: Any, cmdargs: Namespace, var: str) -> list[Path]
                     config.retrospective_forecasts.first_year,
                     config.retrospective_forecasts.last_year + 1,
                 ):
-                    for m in config.retrospective_forecasts.months:
+                    for m in months:
                         tentative = (
                             model_output_data
                             / 'extracted'
@@ -114,6 +125,7 @@ def combine(
     domain: str,
     output_path: Path,
     mean: bool = False,
+    mon: int = 0,
 ) -> None:
     concat_dim = 'init' if mean else 'member'
     logger.info(f'Concat by {concat_dim}')
@@ -145,9 +157,10 @@ def combine(
     # Also trying to remove the empty dimension "time" from the output.
     encoding = {v: {'dtype': 'int32'} for v in ['month']}
     climo.encoding = {}
+    mon_name = '' if mon == 0 else f'_mon{mon:02d}_'
     logger.info('Writing climatology')
     climo.to_netcdf(
-        output_path / f'climatology_{domain}_{var}_{first_year}_{last_year}.nc',
+        output_path / f'climatology_{domain}_{var}_{first_year}_{last_year}{mon_name}.nc',
         encoding=encoding,
     )
     # Do the same for the full set of forecasts
@@ -155,9 +168,9 @@ def combine(
     encoding.update({var: {'zlib': True, 'complevel': 3} for var in model_ds.data_vars})
     logger.info('Writing forecasts')
     fname = (
-        f'forecasts_{domain}_{var}_ensmean.nc'
+        f'forecasts_{domain}_{var}{mon_name}_ensmean.nc'
         if mean
-        else f'forecasts_{domain}_{var}.nc'
+        else f'forecasts_{domain}_{var}{mon_name}.nc'
     )
     model_ds.to_netcdf(output_path / fname, encoding=encoding)
 
@@ -175,6 +188,7 @@ if __name__ == '__main__':
         help='Include only ensemble mean in combined result, \
             dropping individual members.',
     )
+    parser.add_argument('-M', '--month', type=int, default=0)
     parser.add_argument('-t', '--threads', type=int, default=1)
     args = parser.parse_args()
     config = load_config(args.config)
@@ -183,10 +197,10 @@ if __name__ == '__main__':
     last_year = config.climatology.last_year
     if args.mean:
         logger.info('Calculating ensemble mean and using for output.')
-        processor = partial(process_ensmean, config, args)
+        processor = partial(process_ensmean, config, args, mon=args.month)
     else:
         logger.info('Including all ensemble members in output.')
-        processor = partial(process_all_members, config, args)
+        processor = partial(process_all_members, config, args, mon=args.month)
     if ',' in args.var:
         cmdvar = args.var.split(',')
         for v in cmdvar:
@@ -199,6 +213,7 @@ if __name__ == '__main__':
                 args.domain,
                 model_output_data,
                 mean=args.mean,
+                mon=args.month
             )
     else:
         files = processor(args.var)
@@ -210,4 +225,5 @@ if __name__ == '__main__':
             args.domain,
             model_output_data,
             mean=args.mean,
+            mon=args.month
         )
