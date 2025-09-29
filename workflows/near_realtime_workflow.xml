@@ -25,7 +25,7 @@
     <native>-D /home/acr/git/seasonal-workflow/forecast_setup/ --output=&LOGS;/spear_atmos_%j.out</native>
     <dependency>
       <sh shell="/bin/csh" name="">
-        <cyclestr>test -d /archive/l1j/spear_med/rf_hist/fcst/s_j11_OTA_IceAtmRes_L33/i@Y@m01_OTA_IceAtmRes_L33/pp_ens_10</cyclestr>
+        <cyclestr>test -d /archive/l1j/spear_med/rf_hist/fcst/s_j11_OTA_IceAtmRes_L33/i@Y@m01_OTA_IceAtmRes_L33/pp_ens_10 || test -d /archive/l1j/spear_med/rf_hist/fcst/s_j11_OTA_IceAtmRes_L33/i@Y@m01_OTA_IceAtmRes_L33_MED/pp_ens_10</cyclestr>
       </sh>
     </dependency>
   </task>

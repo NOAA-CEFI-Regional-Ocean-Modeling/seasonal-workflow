@@ -38,7 +38,7 @@ workflow:
         sh:
           command:
             cyclestr:
-              value: "test -d /archive/l1j/spear_med/rf_hist/fcst/s_j11_OTA_IceAtmRes_L33/i@Y@m01_OTA_IceAtmRes_L33/pp_ens_10"
+              value: "test -d /archive/l1j/spear_med/rf_hist/fcst/s_j11_OTA_IceAtmRes_L33/i@Y@m01_OTA_IceAtmRes_L33/pp_ens_10 || test -d /archive/l1j/spear_med/rf_hist/fcst/s_j11_OTA_IceAtmRes_L33/i@Y@m01_OTA_IceAtmRes_L33_MED/pp_ens_10"
           attrs: # attrs is supposed to be optional but uw tools will fail if it isn't there.
             shell: "/bin/csh"
     metatask_qc_spear_atmos_daily:

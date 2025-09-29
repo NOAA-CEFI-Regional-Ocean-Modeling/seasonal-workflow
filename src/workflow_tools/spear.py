@@ -105,6 +105,9 @@ def get_spear_path(
         subdir += '_rerun'
     elif ystart in range(2015, 2020) or ystart == 2021:
         subdir += '_update'
+    elif ystart == 2025 and mstart == 10:
+        # This is likely a special case; an early start
+        subdir += '_MED'
     final_path = root / subdir / subpath
     if not final_path.is_file():
         raise FileNotFoundError(
