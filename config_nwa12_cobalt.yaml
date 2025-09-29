@@ -129,7 +129,7 @@ filesystem:
     ERA5: /archive/uda/CEFI/ERA5
     GLORYS_reanalysis: /archive/uda/Global_Ocean_Physics_Reanalysis/global/daily
     GLORYS_analysis: /archive/uda/CEFI/GLOBAL_ANALYSISFORECAST_PHY_001_024/
-    GloFAS_ldd: /work/Utheri.Wagura/datasets/glofas/LDD/ldd_glofas_v4_0.nc
+    GloFAS_ldd: /archive/acr/datasets/glofas/v4.0/ldd_glofas_v4_0.nc
     GloFAS_v4: /archive/uda/GloFAS/LISFLOOD/consolidated/global/river_discharge/v4.0/GloFAS_river_discharge_{y}_v4.0.nc
     # Look for full years of GloFAS data, and look for individual months when those are not available
     GloFAS_interim: /uda/CEFI/GloFAS/GloFAS_river_discharge_{y}_v4.0.nc
