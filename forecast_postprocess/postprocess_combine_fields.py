@@ -157,10 +157,10 @@ def combine(
     # Also trying to remove the empty dimension "time" from the output.
     encoding = {v: {'dtype': 'int32'} for v in ['month']}
     climo.encoding = {}
-    mon_name = '' if mon == 0 else f'_mon{mon:02d}_'
+    m_str = '' if mon == 0 else f'_mon{mon:02d}'
     logger.info('Writing climatology')
     climo.to_netcdf(
-        output_path / f'climatology_{domain}_{var}_{first_year}_{last_year}{mon_name}.nc',
+        output_path / f'climatology_{domain}_{var}_{first_year}_{last_year}{m_str}.nc',
         encoding=encoding,
     )
     # Do the same for the full set of forecasts
@@ -168,9 +168,9 @@ def combine(
     encoding.update({var: {'zlib': True, 'complevel': 3} for var in model_ds.data_vars})
     logger.info('Writing forecasts')
     fname = (
-        f'forecasts_{domain}_{var}{mon_name}_ensmean.nc'
+        f'forecasts_{domain}_{var}{m_str}_ensmean.nc'
         if mean
-        else f'forecasts_{domain}_{var}{mon_name}.nc'
+        else f'forecasts_{domain}_{var}{m_str}.nc'
     )
     model_ds.to_netcdf(output_path / fname, encoding=encoding)
 

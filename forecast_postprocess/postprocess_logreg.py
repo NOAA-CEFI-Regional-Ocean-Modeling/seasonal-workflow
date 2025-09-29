@@ -54,7 +54,7 @@ def apply_logreg_mle(
     yd: NDArray[np.float64]
 ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     # assuming dimensions are <init, lat, lon, quantile>
-    ni, ny, nx, nq = qd.shape
+    ni, ny, nx, nq = qd.shape #noqa: RUF059
     a = np.full((ny, nx), np.nan)
     b = np.full((ny, nx), np.nan)
     c = np.full((ny, nx), np.nan)
