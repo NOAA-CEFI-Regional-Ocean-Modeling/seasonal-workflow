@@ -31,23 +31,23 @@ In basic logistic regression, the logistic function $\sigma$, defined as
 \sigma(x) = \frac{1}{1 + e^{-x}} = \frac{e^x}{1 + e^x}
 \end{equation}
 and some predictors $x$, usually derived from model output in the case of forecast post-processing,
-are used to transform the predictors nto the probability of exceeding the value $q$:
+are used to transform the predictors into the probability of exceeding the value $q$:
 \begin{equation}
     p \{ y > q  \mid x \}= \sigma(f(x))
 \end{equation}
-Typically $f(x)$ is a simple linear function of the numerical model predictions,  
+Typically $f(x)$ is a simple linear function of the numerical model predictions,
 such as
 \begin{equation}
     f(x) = \beta_0 + \beta_1 x
 \end{equation}
 
-Basic logistic regression is useful for determining the probability of 
+Basic logistic regression is useful for determining the probability of
 exceeding a single threshold. However, multiple thresholds are often of interest; for example,
-it may be useful to simultaneously predict the probability of sea surface temperature being below 
+it may be useful to simultaneously predict the probability of sea surface temperature being below
 normal (in the lower tercile of historically observed values),
 near normal (in the middle tercile), and above normal (in the upper tercile).
 This would require fitting two or three separate logistic regression models,
-and the sum of the three probabilities would not be constrained to be equal to one. 
+and the sum of the three probabilities would not be constrained to be equal to one.
 
 To solve this problem, \citet{Wilks2009} introduced extended logistic regression,
 which extends the basic logistic regression model by incorporating
@@ -56,12 +56,12 @@ the threshold $q$ into the regression formula:
     p\{y > q \mid x\} = \sigma(f(x) + g(q))
 \end{equation}
 By including multiple thresholds in the model fitting,
-a single model that can generalize to any threshold is obtained. 
-The thresholds used in model fitting are typically chosen several
-quantiles of the observed values $y$. 
+a single model that can generalize to any threshold is obtained.
+The thresholds used in model fitting are typically chosen to be several
+quantiles of the observed values $y$.
 
 To use extended logistic regression to post-process CEFI
-seasonal forecasts, we use the numerical model ensemble mean 
+seasonal forecasts, we use the numerical model ensemble mean
 forecast as the main predictor:
 \begin{equation}
     f(x) = \beta_0 + \beta_1 \overline{x}_{\textrm{ens}}
@@ -71,9 +71,9 @@ And the raw quantile value in the extension function:
     g(q) = \beta_2 q
 \end{equation}
 Note that \citet{Wilks2009} used the square root of the raw quantile value in this function when predicting precipitation. Here we use
-the raw value because variables such as temperature can be negative. 
+the raw value because variables such as temperature can be negative.
 
-The extended logistic regression model used here written in matrix form as 
+The extended logistic regression model used here can be written in matrix form as
 \begin{equation}
     p \{y > q \mid \mathbf{X}, \mathbf{w} \} = \sigma(\mathbf{X w})
     \label{eqn:elr}
@@ -94,19 +94,19 @@ forecast from only the numerical model ensemble mean; it does not incorporate ot
 such as the ensemble spread.
 Other methods that do use the ensemble spread have been developed,
 such as a modification of extended logistic regression \citep{Messner2014}
-or a different method known as  \citep{Gneiting2005}.
+or a different method known as non-homogeneous Gaussian regression \citep{Gneiting2005}.
 However, given the identical initial conditions across ensemble members
 in the first version of the CEFI seasonal forecasts, the ensemble spread
 may not provide reliable information about forecast uncertainty.
 Furthermore, the homogeneous form of extended logistic regression
-is simple and computationally efficient to implement. 
+is simple and computationally efficient to implement.
 
 \subsubsection{Maximum likelihood estimation}
 
-The parameter vector $ \mathbf{w} $ is determined using maximum likelihood estimation, 
+The parameter vector $ \mathbf{w} $ is determined using maximum likelihood estimation,
 primarily using the methodology and notation of \citet{Minka2001} and \citet{Pregibon1981}.
 We start with a set of $n$ known outcomes $\mathbf{y}$, the $n \times m$ design matrix $\mathbf{X}$,
-and the vector of $m$ parameters $\mathbf{w}$. 
+and the vector of $m$ parameters $\mathbf{w}$.
 
 As shorthand, the predicted probability of a single event can be written as $p_i =  \sigma(\mathbf{x}_i \mathbf{w})$.
 Then, the log-likelihood for all events in the training dataset is:
@@ -126,10 +126,10 @@ Equivalently, in matrix form, the gradient is
     \label{eqn:grad}
 \end{equation}
 
-Equation \ref{eqn:grad} would be sufficient to estimate the parameters using gradient descent. 
-However, for speed and reliability, we use the second-order Newton's method, which also requires 
-the Hessian matrix. 
-Noting that 
+Equation \ref{eqn:grad} would be sufficient to estimate the parameters using gradient descent.
+However, for speed and reliability, we use the second-order Newton's method, which also requires
+the Hessian matrix.
+Noting that
 \begin{equation}
     \frac{\partial{\sigma}}{\partial z} = \sigma(z) \left[1 - \sigma(z) \right]
 \end{equation}
@@ -149,25 +149,25 @@ Finally, Newton's method is used to update the parameters:
 \end{equation}
 After which Equations \ref{eqn:grad} and \ref{eqn:hessian} are recalculated and the parameters
 updated again with Equation \ref{eqn:newton}.
-This iteration continues until the sum of the parameter change 
+This iteration continues until the sum of the parameter change
 $\mathbf{w}_{\textrm{new}} - \mathbf{w}_{\textrm{old}}$ is less than a small number ($10^{-5}$).
-If the estimation has not converged after 50 iterations, or if the Hessian matrix 
-is unable to be inverted, the parameters are set to null values. 
+If the estimation has not converged after 50 iterations, or if the Hessian matrix
+is unable to be inverted, the parameters are set to null values.
 
 \subsubsection{Implementation}
 
-The parameters for the extended logistic regression were 
+The parameters for the extended logistic regression were
 estimated using monthly mean surface temperature, surface salinity, and bottom temperature output
 from the retrospective forecasts initialized between 1994 and 2022
 and corresponding monthly means from the GLORYS reanalysis \citep{Jean-Michel2021} interpolated
 onto the NWA12 model grid.
 A different set of parameters was estimated for each of the three variables,
 each combination of forecast initialization month and lead time, and each
-point in the NWA12 model grid. 
-Five quantiles were used in the parameter estimation: $ [0.1, 0.33, 0.5, 0.67, 0.9]$. 
-After the parameters have been estimated, 
+point in the NWA12 model grid.
+Five quantiles were used in the parameter estimation: $ [0.1, 0.33, 0.5, 0.67, 0.9]$.
+After the parameters have been estimated,
 they can be used to predict the probability of exceeding any value given the forecast ensemble mean
-using Equation \ref{eqn:elr}. 
+using Equation \ref{eqn:elr}.
 
 \bibliographystyle{apacite}
 \bibliography{references}
