@@ -156,7 +156,7 @@ def ics_from_snapshot(component, history, ystart, mstart, force_extract=False): 
                     logger.info(f'Adding {new_var} to snapshot')
                     snapshot[new_var] = snapshot[f'n{s}'] / 16.0
     elif 'ice' in component:
-        # Convert ice and snow thickness from the outpu units (m)
+        # Convert ice and snow thickness from the output units (m)
         # to the units that the model expects for initial conditions
         # (kg m-2) by using the constant densities of ice and snow.
         scaling = {'hice': 905.0, 'hsnow': 330.0}
