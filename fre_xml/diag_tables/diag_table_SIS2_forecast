@@ -1,0 +1,33 @@
+## output files
+"ice_daily",              1, "days",   1, "days", "time"
+"ice_month",              1, "months", 1, "days", "time"
+"ice_static",            -1, "months", 1, "days", "time"
+
+#================
+# ICE DIAGNOSTICS
+#================
+ "ice_model", "CELL_AREA",  "CELL_AREA",    "ice_static", "all", "none", "none", 2
+ "ice_model", "COSROT",     "COSROT",       "ice_static", "all", "none", "none", 2
+ "ice_model", "GEOLAT",     "GEOLAT",       "ice_static", "all", "none", "none", 2
+ "ice_model", "GEOLON",     "GEOLON",       "ice_static", "all", "none", "none", 2
+ "ice_model", "SINROT",     "SINROT",       "ice_static", "all", "none", "none", 2
+
+# Daily sea-ice
+#"ice_model", "SST",        "SST",          "ice_daily", "all", "mean", "none", 2
+# "ice_model", "SSH",        "SSH",          "ice_daily", "all", "mean", "none", 2
+# "ice_model", "SSS",        "SSS",          "ice_daily", "all", "mean", "none", 2
+# "ice_model", "EXT",        "EXT",          "ice_daily", "all", "mean", "none", 2
+ "ice_model", "siconc",     "siconc",       "ice_daily", "all", "mean", "none", 2
+
+# Monthly sea-ice
+ "ice_model", "EXT",        "EXT",          "ice_month", "all", "mean", "none", 2
+ "ice_model", "EXT",        "EXT_MIN",      "ice_month", "all", "min",  "none", 2
+ "ice_model", "EXT",        "EXT_MAX",      "ice_month", "all", "max",  "none", 2
+ "ice_model", "TSN",        "TSN",           "ice_month", "all", "mean", "none", 2
+ "ice_model", "siconc",     "siconc",       "ice_month", "all", "mean", "none", 2
+ "ice_model", "sisnconc",   "sisnconc",     "ice_month", "all", "mean", "none", 2
+ "ice_model", "simass",     "simass",       "ice_month", "all", "mean", "none", 2
+ "ice_model", "sisnmass",   "sisnmass",     "ice_month", "all", "mean", "none", 2
+ "ice_model", "sisnthick",  "sisnthick",    "ice_month", "all", "mean", "none", 2
+ "ice_model", "sithick",    "sithick",      "ice_month", "all", "mean", "none", 2
+ "ice_model", "sivol",      "sivol",        "ice_month", "all", "mean", "none", 2

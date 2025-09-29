@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<experimentSuite rtsVersion="4" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <property name="ystart" value="2025"/>
+  <property name="mstart" value="10"/>
+  <property name="atmos_start" value="20251001"/>
+  <property name="atmos_end" value="20260930"/>
+
+  <xi:include href="NWA12_cobalt_forecast_common.xml" xpointer="xpointer(//freInclude[@name='common']/node())"/>
+
+</experimentSuite>

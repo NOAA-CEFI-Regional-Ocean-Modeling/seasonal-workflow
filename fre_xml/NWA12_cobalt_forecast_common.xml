@@ -1,0 +1,1176 @@
+<freInclude xmlns:xi="http://www.w3.org/2003/XInclude" name="common">
+  <!-- git tag for general component source code-->
+  <property name="RELEASE" value="2024.02"/>
+
+  <!-- git tag for FMS source code -->
+  <property name="FMS_GIT_TAG" value="$(RELEASE)"/>
+
+  <!-- git tag for shared source code -->
+  <property name="CPL_GIT_TAG" value="$(RELEASE)"/>
+
+  <!-- git tag for shared source code -->
+  <property name="NULL_TAG" value="2023.04"/>
+
+  <!-- git tag for MOM6 source code -->
+  <property name="MOM6_GIT_TAG" value="main"/>
+
+  <!-- This will be included in the paths to the compiled model binary and /archive. Customize as desired.-->
+  <property name="FRE_STEM" value="fre/NWA/2024_09"/>
+
+  <!-- These are the accounts that will be used on Gaea (NCRC) and PPAN (GFDL).
+  ira-cefi, cefi, or gfdl_med are the two most likely options, but some users
+  may have access to other accounts too. -->
+  <property name="NCRC_GROUP" value="ira-cefi"/>
+  <property name="GFDL_GROUP" value="cefi"/>
+
+  <!-- The number of years of simulation to run for the main (production) run: -->
+  <property name="PROD_SIMTIME" value="1"/>
+
+  <!--Post-processing  chunk lengths -->
+  <property name="CHUNK_LENGTH_A" value="5yr"/>
+  <property name="CHUNK_LENGTH_B" value="30yr"/>
+
+  <!-- Start year of post-processing (should likely be the same as the first year of the model) -->
+  <property name="PP_START_YEAR" value="1993"/>
+
+  <!-- fre version to be used -->
+  <property name="FRE_VERSION" value="bronx-23"/>
+
+  <!-- These don't do anything but are expected by the xml_include files -->
+  <property name="DEBUGLEVEL" value=""/>
+  <property name="BUILD_DATE" value=""/>
+  <property name="reference_tag" value="none"/>
+  <property name="MDBIswitch" value="off"/>
+
+  <!-- This points to the XML directory on different systems. Currently not important. -->
+  <property name="PLATINFO" value=""/>
+  <property name="AWG_INPUT_HOME_GAEA" value="/ncrc/home2/Andrew.C.Ross/nwa-xml/xml_include"/>
+  <property name="AWG_INPUT_HOME_GFDL" value="/home/Andrew.C.Ross/git/nwa-xml/xml_include"/>
+
+  <!-- This automatically determines the start year of the model run, used to include the first forcing files. Do not change. -->
+  <property name="append_to_setup_csh" value="set fyear=`echo $baseDate | cut -c1-4`"/>
+
+  <!-- Include compilers that can be used. -->
+  <setup>
+    <xi:include href="../xml_include/xml_building_blocks/platforms.xml" xpointer="xpointer(//freInclude/platform[@name='ncrc5.intel22'])"/>
+    <xi:include href="../xml_include/xml_building_blocks/platforms.xml" xpointer="xpointer(//freInclude/platform[@name='gfdl.ncrc5-intel22'])"/>
+    <xi:include href="../xml_include/xml_building_blocks/platforms.xml" xpointer="xpointer(//freInclude/platform[@name='ncrc6.intel23'])"/>
+    <xi:include href="../xml_include/xml_building_blocks/platforms.xml" xpointer="xpointer(//freInclude/platform[@name='gfdl.ncrc6-intel23'])"/>
+  </setup>
+
+  <!-- These are the properties for c6:
+  <property name="NWA12_WORLD"       value="/gpfs/f6/ira-cefi/world-shared/northwest_atlantic/nwa12_input"/>
+  <property name="NWA12_USER"        value="/gpfs/f6/ira-cefi/scratch/Andrew.C.Ross/northwest_atlantic/nwa12_input"/>
+  <property name="NWA_ERA5"          value="/gpfs/f6/ira-cefi/world-shared/northwest_atlantic/era5"/>
+  <property name="GLOBAL_WORLD"      value="/gpfs/f6/ira-cefi/world-shared/global"/>
+  -->
+
+  <!--= COMPILE =-->
+  <!--===========-->
+  <!-- These properties set where to place compiled files. -->
+  <property name="PROG_MAIN" value="coupler/coupler_main.o"/>
+  <!-- LIBS_ROOT should match the name of the compile experiment below -->
+  <property name="LIBS_ROOT" value="FMS2_MOM6_SIS2_COBALT_compile_symm"/>
+  <property name="FMS_LIB_DIR" value="./$(LIBS_ROOT)/$(platform)-$(target)/exec"/>
+  <property name="MOM6_EXAMPLES" value="$root/$(LIBS_ROOT)/src/mom6"/> <!-- Not important -->
+  <property name="MY_LIBS" value="$(EXEC_ROOT)/$(FMS_LIB_DIR)"/>
+
+  <!-- This experiment includes everything needed to compile the model.
+  Experiments that inherit from it will automatically use the compiled model binary. -->
+  <experiment name="FMS2_MOM6_SIS2_COBALT_compile_symm">
+    <description>
+      Make the executable for ocean-ice experiments.
+    </description>
+    <component name="fms" paths="FMS">
+      <source versionControl="git" root="https://github.com/NOAA-GFDL">
+        <codeBase version="$(FMS_GIT_TAG)"> FMS.git </codeBase>
+      </source>
+      <compile>
+        <cppDefs>-Duse_libMPI -Duse_netCDF $(F2003_FLAGS) -DMAXFIELDMETHODS_=400</cppDefs>
+      </compile>
+    </component>
+    <component name="mom6_symmetric" requires="fms" paths="mom6/src/MOM6/config_src/memory/dynamic_symmetric mom6/src/MOM6/config_src/drivers/FMS_cap mom6/src/MOM6/src/*/ mom6/src/MOM6/src/*/*/ mom6/src/MOM6/config_src/external/ODA_hooks mom6/src/MOM6/config_src/external/stochastic_physics mom6/src/MOM6/config_src/external/drifters mom6/src/MOM6/config_src/external/database_comms mom6/src/ocean_BGC/generic_tracers mom6/src/ocean_BGC/mocsy/src mom6/src/MOM6/pkg/GSW-Fortran/modules mom6/src/MOM6/pkg/GSW-Fortran/toolbox mom6/src/MOM6/config_src/infra/FMS2">
+      <source versionControl="git" root="https://github.com/NOAA-GFDL/">
+        <codeBase version="$(MOM6_GIT_TAG)">CEFI-regional-MOM6.git</codeBase>
+        <csh><![CDATA[
+          mv CEFI-regional-MOM6 mom6
+          (cd mom6/src/ocean_BGC && git switch dev/cefi)
+        ]]></csh>
+      </source>
+      <compile>
+        <cppDefs><![CDATA[ $(F2003_FLAGS) -DMAX_FIELDS_=100 -DNOT_SET_AFFINITY -D_USE_MOM6_DIAG -D_USE_GENERIC_TRACER  -DUSE_PRECISION=2 -D_FILE_VERSION="'"`git-version-string $<`"'" ]]></cppDefs>
+      </compile>
+    </component>
+    <component name="sis2" paths="mom6/src/SIS2/config_src/dynamic_symmetric mom6/src/SIS2/config_src/external/Icepack_interfaces mom6/src/SIS2/src mom6/src/icebergs/src mom6/src/ice_param" requires="fms mom6_symmetric" includeDir="$root/$(LIBS_ROOT)/src/mom6/src/MOM6/src/framework" >
+      <source versionControl="git" root="https://github.com/NOAA-GFDL">
+        <codeBase version="$(RELEASE)"> ice_param.git </codeBase>
+      </source>
+      <compile>
+         <cppDefs><![CDATA[$(F2003_FLAGS) -DUSE_FMS2_IO -D_FILE_VERSION="'"`git-version-string $<`"'"]]></cppDefs>
+      </compile>
+    </component>
+    <component name="land_null" paths="land_null" requires="fms">
+      <description domainName="NA" communityName="NA" communityVersion="NA" communityGrid="NA"/>
+      <source versionControl="git" root="https://github.com/NOAA-GFDL">
+        <codeBase version="$(NULL_TAG)"> land_null.git </codeBase>
+      </source>
+    </component>
+    <component name="atmos_null" paths="atmos_null" requires="fms">
+      <source versionControl="git" root="https://github.com/NOAA-GFDL">
+        <codeBase version="$(NULL_TAG)"> atmos_null.git </codeBase>
+      </source>
+      <compile>
+        <cppDefs>$(F2003_FLAGS) </cppDefs>
+      </compile>
+    </component>
+    <component name="coupler" paths="coupler/full coupler/shared" requires="fms land_null atmos_null sis2 mom6_symmetric">
+      <description domainName="FMS Coupler" communityName="coupler" communityVersion="$(RELEASE)" communityGrid=""/>
+      <source versionControl="git" root="https://github.com/NOAA-GFDL">
+        <codeBase version="$(CPL_GIT_TAG)"> coupler.git </codeBase>
+      </source>
+      <compile>
+        <cppDefs><![CDATA[$(F2003_FLAGS) -D_USE_LEGACY_LAND_ -Duse_AM3_physics -D_FILE_VERSION="'"`git-version-string $<`"'"]]></cppDefs>
+      </compile>
+    </component>
+  </experiment>
+
+  <experiment name="NWA12_cobalt_forecast_2024_09" inherit="FMS2_MOM6_SIS2_COBALT_compile_symm">
+    <description >
+    </description>
+    <input>
+      <namelist name="coupler_nml">
+        months = $months,
+        days   = $days,
+        current_date = $(ystart),$(mstart),1,0,0,0,
+        hours = 0
+        minutes = 0
+        seconds = 0
+        calendar = 'gregorian',
+        dt_cpld  = 3600,
+        dt_atmos = 3600,
+        do_atmos = .false.,
+        do_land = .false.,
+        do_ice = .true.,
+        do_ocean = .true.,
+        atmos_npes = 0,
+        ocean_npes = 0,
+        concurrent = .false.
+        use_lag_fluxes=.false.
+        atmos_nthreads = $atm_threads
+        ocean_nthreads = $ocn_threads
+        do_chksum = .false.
+      </namelist>
+      <namelist name="generic_tracer_nml">
+        do_generic_tracer=.true.
+        do_generic_abiotic=.false.
+        do_generic_CFC=.false.
+        do_generic_COBALT=.true.
+        do_generic_SF6=.false.
+        force_update_fluxes=.true.
+        as_param='W14'
+        do_vertfill_post=.true.
+      </namelist>
+      <namelist name="generic_abiotic_nml">
+        co2_calc='mocsy'
+      </namelist>
+      <namelist name="generic_COBALT_nml">
+        co2_calc = 'mocsy'
+        debug = .false.
+        imbalance_tolerance = 1.0e-7
+      </namelist>
+      <namelist name ="cobalt_input_nml">
+        parameter_filename = 'INPUT/COBALT_input','INPUT/COBALT_override'
+      </namelist>
+      <namelist name="time_interp_external_nml">
+        max_fields = 400
+      </namelist>
+      <namelist name="diag_manager_nml">
+        max_files = 600
+        flush_nc_files=.false.
+        max_axes = 600
+        max_num_axis_sets = 600
+        max_input_fields = 2000
+        max_output_fields = 5000
+        mix_snapshot_average_fields=.false.
+      </namelist>
+      <namelist name="xgrid_nml">
+        make_exchange_reproduce = .false.
+        interp_method = 'second_order'
+      </namelist>
+      <namelist name="fms_nml">
+        clock_grain='ROUTINE'
+        clock_flags='NONE'
+        domains_stack_size = 8000000
+        stack_size =0
+      </namelist>
+      <namelist name="fms2_io_nml">
+        netcdf_default_format = 'netcdf4'
+        fms_netcdf_restart=.true.
+        threading_read='multi'
+        max_files_r = 800
+        max_files_w = 800
+      </namelist>
+      <namelist name="atmos_model_nml">
+        layout= 1,1
+      </namelist>
+      <namelist name="sat_vapor_pres_nml">
+        construct_table_wrt_liq = .true.,
+        construct_table_wrt_liq_and_ice = .true.,
+      </namelist>
+      <namelist name="ice_albedo_nml">
+        t_range = 10.
+      </namelist>
+      <namelist name="icebergs_nml">
+        verbose=.false.,
+        verbose_hrs=24,
+        traj_sample_hrs=24,
+        debug=.false.,
+        really_debug=.false.,
+        use_slow_find=.true.,
+        add_weight_to_ocean=.true.,
+        passive_mode=.false.,
+        generate_test_icebergs=.false.,
+        speed_limit=0.,
+        use_roundoff_fix=.true.,
+        make_calving_reproduce=.true.,
+      </namelist>
+      <namelist name="monin_obukhov_nml">
+        neutral = .true.
+      </namelist>
+      <namelist name="ocean_albedo_nml">
+        ocean_albedo_option = 2
+      </namelist>
+      <namelist name="ocean_rough_nml">
+        rough_scheme = 'beljaars'
+      </namelist>
+      <namelist name="surface_flux_nml">
+        ncar_ocean_flux_multilevel = .true.,
+        raoult_sat_vap = .true.,
+        bulk_zu=10.0,
+        bulk_zt=2.0,
+        bulk_zq=2.0
+      </namelist>
+      <namelist name="MOM_input_nml">
+        output_directory = './',
+        input_filename = '$restart_flag'
+        restart_input_dir = 'INPUT/',
+        restart_output_dir = 'RESTART/',
+        parameter_filename = 'INPUT/MOM_input','INPUT/MOM_layout','INPUT/MOM_override'
+      </namelist>
+      <namelist name="SIS_input_nml" >
+        output_directory = './',
+        input_filename = '$restart_flag'
+        restart_input_dir = 'INPUT/',
+        restart_output_dir = 'RESTART/',
+        parameter_filename = 'INPUT/SIS_input','INPUT/SIS_layout','INPUT/SIS_override'
+      </namelist>
+
+      <!--common setup-->
+      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_obcs']/input/node())"/>
+      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+
+      <dataTable>
+"ATM" , "p_surf"        , "slp"         , "INPUT/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc"          , "bilinear" ,  1.0
+"ATM" , "p_bot"         , "slp"         , "INPUT/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc"          , "bilinear" ,  1.0
+"ATM" , "t_bot"         , "t_ref"       , "INPUT/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc"        , "bilinear" ,  1.0
+"ATM" , "sphum_bot"     , "q_ref"       , "INPUT/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc"        , "bilinear" ,  1.0
+"ATM" , "u_bot"         , "u_ref"       , "INPUT/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc"        , "bicubic",   1.0
+"ATM" , "v_bot"         , "v_ref"       , "INPUT/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc"        , "bicubic",   1.0
+"ATM" , "z_bot"         , ""            , ""                                               , "bilinear" , 10.0
+"ATM" , "gust"          , ""            , ""                                               , "bilinear" ,  1.0e-4
+"ATM", "o2_flux_pcair_atm",  ""         , ""                                               , "none",      0.214
+"ATM", "co2_flux_pcair_atm", "mole_fraction_of_carbon_dioxide_in_air", "INPUT/mole_fraction_of_co2_extended_ssp245_v2.nc", "bilinear", 1.0e-06
+"ATM", "co2_bot",            "mole_fraction_of_carbon_dioxide_in_air", "INPUT/mole_fraction_of_co2_extended_ssp245_v2.nc", "bilinear", 1.0e-06
+"ATM", "co2_dvmr_restore",   "mole_fraction_of_carbon_dioxide_in_air", "INPUT/mole_fraction_of_co2_extended_ssp245_v2.nc", "bilinear", 1.0e-06
+#
+"ICE" , "lw_flux_dn"    , "lwdn_sfc"    , "INPUT/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc"     , "bilinear" ,  1.0
+"ICE" , "sw_flux_vis_dir_dn", "swdn_sfc", "INPUT/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc"     , "bilinear" ,  0.285
+"ICE" , "sw_flux_vis_dif_dn", "swdn_sfc", "INPUT/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc"     , "bilinear" ,  0.285
+"ICE" , "sw_flux_nir_dir_dn", "swdn_sfc", "INPUT/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc"     , "bilinear" ,  0.215
+"ICE" , "sw_flux_nir_dif_dn", "swdn_sfc", "INPUT/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc"     , "bilinear" ,  0.215
+"ICE" , "lprec"         , "precip"      , "INPUT/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc"       , "bilinear" ,  1.0
+"ICE" , "fprec"         , ""            , ""                                               , "none" ,  0.0
+"ICE" , "runoff"        , "runoff"      , "INPUT/glofas_runoff_climo_1993_2019.nc"         , "none" ,  1.0
+"ICE" , "calving"       , ""            , ""                             , "none"  ,  0.0
+"ICE" , "dhdt"          , ""            , ""                             , "none"  , 80.0
+"ICE" , "dedt"          , ""            , ""                             , "none"  ,  2.0e-6
+"ICE" , "drdt"          , ""            , ""                             , "none"  ,  10.0
+"LND" , "t_surf"        , ""            , ""                             , "none"  ,  273.0
+"LND" , "t_ca"          , ""            , ""                             , "none"  ,  273.0
+"LND" , "q_ca"          , ""            , ""                             , "none"  ,  0.0
+"LND" , "rough_mom"     , ""            , ""                             , "none"  ,  0.01
+"LND" , "rough_heat"    , ""            , ""                             , "none"  ,  0.1
+"LND" , "albedo"        , ""            , ""                             , "none"  ,  0.1
+#"LND" , "t_ca"         , ""            , ""                             , "none"  ,  273.0
+#"LND" , "t_surf"       , ""            , ""                             , "none"  ,  273.0
+"LND" , "sphum_surf"    , ""            , ""                             , "none"  ,  0.0
+"LND" , "sphum_ca"      , ""            , ""                             , "none"  ,  0.0
+"LND" , "t_flux"        , ""            , ""                             , "none"  ,  0.0
+"LND" , "sphum_flux"    , ""            , ""                             , "none"  ,  0.0
+"LND" , "lw_flux"       , ""            , ""                             , "none"  ,  0.0
+"LND" , "sw_flux"       , ""            , ""                             , "none"  ,  0.0
+"LND" , "lprec"         , ""            , ""                             , "none"  ,  0.0
+"LND" , "fprec"         , ""            , ""                             , "none"  ,  0.0
+"LND" , "dhdt"          , ""            , ""                             , "none"  ,  5.0
+"LND" , "dedt"          , ""            , ""                             , "none"  ,  2e-6
+"LND" , "dedq"          , ""            , ""                             , "none"  ,  0.0
+"LND" , "drdt"          , ""            , ""                             , "none"  ,  5.0
+"LND" , "drag_q"        , ""            , ""                             , "none"  ,  0.0
+"LND" , "p_surf"        , ""            , ""                             , "none"  ,  1.e5
+#
+"OCN", "runoff_no3_flux_ice_ocn",   "NO3_CONC",     "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_ldon_flux_ice_ocn",  "LDON_CONC",    "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_sldon_flux_ice_ocn", "SLDON_CONC",   "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_srdon_flux_ice_ocn", "SRDON_CONC",   "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_ndet_flux_ice_ocn",  "NDET_CONC",    "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_po4_flux_ice_ocn",   "PO4_CONC",     "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_ldop_flux_ice_ocn",  "LDOP_CONC",    "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_sldop_flux_ice_ocn", "SLDOP_CONC",   "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_srdop_flux_ice_ocn", "SRDOP_CONC",   "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_pdet_flux_ice_ocn",  "PDET_CONC",    "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_fed_flux_ice_ocn",   "FED_CONC",     "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_alk_flux_ice_ocn",   "ALK_CONC",     "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_dic_flux_ice_ocn",   "DIC_CONC",     "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_nh4_flux_ice_ocn",   "NH4_CONC",     "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_fedet_flux_ice_ocn", "FEDET_CONC",   "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_o2_flux_ice_ocn",    "O2_CONC",      "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_sio4_flux_ice_ocn",  "SI_CONC",      "./INPUT/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc", "none",      1.0e-3
+"OCN", "runoff_lith_flux_ice_ocn",  "",             "",                                                              "none",     13.0e-3
+#
+"OCN", "dry_dep_fed_flux_ice_ocn",  "dryfe",   "./INPUT/esm4_dryfe_climo_1993-2014.nc",                 "bilinear", -1.0
+"OCN", "wet_dep_fed_flux_ice_ocn",  "wetfe",   "./INPUT/esm4_wetfe_climo_1993-2014.nc",                 "bilinear", -1.0
+"OCN", "dry_dep_lith_flux_ice_ocn", "drydust", "./INPUT/esm4_drydust_climo_1993-2014.nc",               "bilinear", -1.0
+"OCN", "wet_dep_lith_flux_ice_ocn", "wetdust", "./INPUT/esm4_wetdust_climo_1993-2014.nc",               "bilinear", -1.0
+# TODO:
+"OCN", "dry_dep_po4_flux_ice_ocn",  "drydust", "./INPUT/esm4_drydust_climo_1993-2014.nc",               "bilinear",  -4.0e-6
+"OCN", "wet_dep_no3_flux_ice_ocn",  "wetnoy",  "./INPUT/esm4_wetnoy_climo_1993-2014.nc",                "bilinear",  -1.0
+"OCN", "dry_dep_no3_flux_ice_ocn",  "drynoy",  "./INPUT/esm4_drynoy_climo_1993-2014.nc",                "bilinear",  -1.0
+"OCN", "wet_dep_nh4_flux_ice_ocn",  "wetnh4",  "./INPUT/esm4_wetnh4_climo_1993-2014.nc",                "bilinear",  -1.0
+"OCN", "dry_dep_nh4_flux_ice_ocn",  "drynh4",  "./INPUT/esm4_drynh4_climo_1993-2014.nc",                "bilinear",  -1.0
+      </dataTable>
+
+      <fieldTable>
+# specific humidity for moist runs
+"TRACER", "atmos_mod", "sphum"
+          "longname",     "specific humidity"
+          "units",        "kg/kg" /
+##     "profile_type", "fixed", "surface_value=3.e-6" /
+# prognostic cloud scheme tracers
+"TRACER", "atmos_mod", "liq_wat"
+          "longname",     "cloud liquid specific humidity"
+          "units",        "kg/kg" /
+"TRACER", "atmos_mod", "ice_wat"
+          "longname",     "cloud ice water specific humidity"
+          "units",        "kg/kg" /
+"TRACER", "atmos_mod", "cld_amt"
+          "longname",     "cloud fraction"
+          "units",        "none" /
+# sphum must be present on land as well
+"TRACER", "land_mod",     "sphum"
+          "longname",     "specific humidity"
+          "units",        "kg/kg" /
+###.................................................
+"namelists","ocean_mod","generic_COBALT"
+enforce_src_info = f
+alk_obc_src_file_name = esper_climo_temp_extended.nc
+alk_obc_lfac_in = 0.03
+alk_obc_lfac_out = 1.0
+cadet_arag_obc_src_file_name = bgc_cobalt.nc
+cadet_arag_obc_lfac_in = 0.03
+cadet_ararg_obc_lfac_out = 1.0
+cadet_calc_obc_src_file_name = bgc_cobalt.nc
+cadet_calc_obc_lfac_in = 0.03
+cadet_calc_obc_lfac_out = 1.0
+dic_obc_src_file_name = esper_climo_temp_extended.nc
+dic_obc_lfac_in = 0.03
+dic_obc_lfac_out = 1.0
+dic14_obc_src_file_name = bgc_zero.nc
+dic14_obc_lfac_in = 0.03
+dic14_obc_lfac_out = 1.0
+do14_obc_src_file_name = bgc_zero.nc
+do14_obc_lfac_in = 0.03
+do14_obc_lfac_out = 1.0
+do14c_obc_src_file_name = bgc_zero.nc
+do14c_obc_lfac_in = 0.03
+do14c_obc_lfac_out = 1.0
+di14c_obc_src_file_name = bgc_zero.nc
+di14c_obc_lfac_in = 0.03
+di14c_obc_lfac_out = 1.0
+fed_obc_src_file_name = bgc_cobalt.nc
+fed_obc_lfac_in = 0.03
+fed_obc_lfac_out = 1.0
+fedi_obc_src_file_name = bgc_cobalt.nc
+fedi_obc_lfac_in = 0.03
+fedi_obc_lfac_out = 1.0
+felg_obc_src_file_name = bgc_cobalt.nc
+felg_obc_lfac_in = 0.03
+felg_obc_lfac_out = 1.0
+fedet_obc_src_file_name = bgc_cobalt.nc
+fedet_obc_lfac_in = 0.03
+fedet_obc_lfac_out = 1.0
+fesm_obc_src_file_name = bgc_cobalt.nc
+fesm_obc_lfac_in = 0.03
+fesm_obc_lfac_out = 1.0
+ldon_obc_src_file_name = bgc_cobalt.nc
+ldon_obc_lfac_in = 0.03
+ldon_obc_lfac_out = 1.0
+ldop_obc_src_file_name = bgc_cobalt.nc
+ldop_obc_lfac_in = 0.03
+ldop_obc_lfac_out = 1.0
+lith_obc_src_file_name = bgc_cobalt.nc
+lith_obc_lfac_in = 0.03
+lith_obc_lfac_out = 1.0
+lithdet_obc_src_file_name = bgc_cobalt.nc
+lithdet_obc_lfac_in = 0.03
+lithdet_obc_lfac_out = 1.0
+nbact_obc_src_file_name = bgc_cobalt.nc
+nbact_obc_lfac_in = 0.03
+nbact_obc_lfac_out = 1.0
+ndet_obc_src_file_name = bgc_cobalt.nc
+ndet_obc_lfac_in = 0.03
+ndet_obc_lfac_out = 1.0
+ndi_obc_src_file_name = bgc_cobalt.nc
+ndi_obc_lfac_in = 0.03
+ndi_obc_lfac_out = 1.0
+nlg_obc_src_file_name = bgc_cobalt.nc
+nlg_obc_lfac_in = 0.03
+nlg_obc_lfac_out = 1.0
+nsm_obc_src_file_name = bgc_cobalt.nc
+nsm_obc_lfac_in = 0.03
+nsm_obc_lfac_out = 1.0
+nh3_obc_src_file_name = bgc_zero.nc
+nh3_obc_lfac_in = 0.03
+nh3_obc_lfac_out = 1.0
+nh4_obc_src_file_name = bgc_cobalt.nc
+nh4_obc_lfac_in = 0.03
+nh4_obc_lfac_out = 1.0
+no3_obc_src_file_name = bgc_woa.nc
+no3_obc_lfac_in = 0.03
+no3_obc_lfac_out = 1.0
+o2_obc_src_file_name = bgc_woa.nc
+o2_obc_lfac_in = 0.03
+o2_obc_lfac_out = 1.0
+pdet_obc_src_file_name = bgc_cobalt.nc
+pdet_obc_lfac_in = 0.03
+pdet_obc_lfac_out = 1.0
+po4_obc_src_file_name = bgc_woa.nc
+po4_obc_lfac_in = 0.03
+po4_obc_lfac_out = 1.0
+srdon_obc_src_file_name = bgc_cobalt.nc
+srdon_obc_lfac_in = 0.03
+srdon_obc_lfac_out = 1.0
+srdop_obc_src_file_name = bgc_cobalt.nc
+srdop_obc_lfac_in = 0.03
+srdop_obc_lfac_out = 1.0
+sldon_obc_src_file_name = bgc_cobalt.nc
+sldon_obc_lfac_in = 0.03
+sldon_obc_lfac_out = 1.0
+sldop_obc_src_file_name = bgc_cobalt.nc
+sldop_obc_lfac_in = 0.03
+sldop_obc_lfac_out = 1.0
+sidet_obc_src_file_name = bgc_cobalt.nc
+sidet_obc_lfac_in = 0.03
+sidet_obc_lfac_out = 1.0
+silg_obc_src_file_name = bgc_cobalt.nc
+silg_obc_lfac_in = 0.03
+silg_obc_lfac_out = 1.0
+sio4_obc_src_file_name = bgc_woa.nc
+sio4_obc_lfac_in = 0.03
+sio4_obc_lfac_out = 1.0
+nsmz_obc_src_file_name = bgc_cobalt.nc
+nsmz_obc_lfac_in = 0.03
+nsmz_obc_lfac_out = 1.0
+nmdz_obc_src_file_name = bgc_cobalt.nc
+nmdz_obc_lfac_in = 0.03
+nmdz_obc_lfac_out = 1.0
+nlgz_obc_src_file_name = bgc_cobalt.nc
+nlgz_obc_lfac_in = 0.03
+nlgz_obc_lfac_out = 1.0
+nmdp_obc_src_file_name = bgc_cobalt.nc
+nmdp_obc_lfac_in = 0.03
+nmdp_obc_lfac_out = 1.0
+femdp_obc_src_file_name = bgc_cobalt.nc
+femdp_obc_lfac_in = 0.03
+femdp_obc_lfac_out = 1.0
+femd_obc_src_file_name = bgc_cobalt.nc
+femd_obc_lfac_in = 0.03
+femd_obc_lfac_out = 1.0
+simd_obc_src_file_name = bgc_cobalt.nc
+simd_obc_lfac_in = 0.03
+simd_obc_lfac_out = 1.0
+pdi_obc_src_file_name = bgc_cobalt.nc
+pdi_obc_lfac_in = 0.03
+pdi_obc_lfac_out = 1.0
+psm_obc_src_file_name = bgc_cobalt.nc
+psm_obc_lfac_in = 0.03
+psm_obc_lfac_out = 1.0
+pmd_obc_src_file_name = bgc_cobalt.nc
+pmd_obc_lfac_in = 0.03
+pmd_obc_lfac_out = 1.0
+nmd_obc_src_file_name = bgc_cobalt.nc
+nmd_obc_lfac_in = 0.03
+nmd_obc_lfac_out = 1.0
+plg_obc_src_file_name = bgc_cobalt.nc
+plg_obc_lfac_in = 0.03
+plg_obc_lfac_out = 1.0
+/
+      </fieldTable>
+      <diagTable>
+$name
+$baseDate
+      </diagTable>
+      <dataFile label="diagTable" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource site="ncrc">/ncrc/home2/Andrew.C.Ross/nwa-xml/diag_tables/diag_table_COBALT_forecast</dataSource>
+        <dataSource site="ncrc">/ncrc/home2/Andrew.C.Ross/nwa-xml/diag_tables/diag_table_MOM6_forecast</dataSource>
+        <dataSource site="ncrc">/ncrc/home2/Andrew.C.Ross/nwa-xml/diag_tables/diag_table_COBALT_neus</dataSource>
+        <dataSource site="ncrc">/ncrc/home2/Andrew.C.Ross/nwa-xml/diag_tables/diag_table_MOM6_neus</dataSource>
+        <dataSource site="ncrc">/ncrc/home2/Andrew.C.Ross/nwa-xml/diag_tables/diag_table_SIS2_forecast</dataSource>
+        <dataSource site="gfdl">/home/Andrew.C.Ross/git/nwa-xml/diag_tables/diag_table_COBALT_forecast</dataSource>
+        <dataSource site="gfdl">/home/Andrew.C.Ross/git/nwa-xml/diag_tables/diag_table_MOM6_forecast</dataSource>
+        <dataSource site="gfdl">/home/Andrew.C.Ross/git/nwa-xml/diag_tables/diag_table_COBALT_neus</dataSource>
+        <dataSource site="gfdl">/home/Andrew.C.Ross/git/nwa-xml/diag_tables/diag_table_MOM6_neus</dataSource>
+        <dataSource site="gfdl">/home/Andrew.C.Ross/git/nwa-xml/diag_tables/diag_table_SIS2_forecast</dataSource>
+      </dataFile>
+      <!-- Grid files-->
+      <dataFile label="gridSpec" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource site="ncrc">$(NWA12_WORLD)/nwa12_grid_75z.tar</dataSource>
+        <dataSource site="gfdl">/archive/acr/mom6_input/nwa12/nwa12_grid_75z.tar</dataSource>
+      </dataFile>
+      <!-- Initial conditions -->
+      <dataFile label="initCond" target="INPUT/" chksum="" size="" timestamp="">
+        <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/initial/forecast_ics_$(ystart)-$(mstart).tar</dataSource>
+      </dataFile>
+      <csh><![CDATA[
+# All forecasts are new runs
+set restart_flag = 'n'
+
+ln -s $work/INPUT/ocean_topog.nc $work/INPUT/topog.nc
+
+touch $work/INPUT/MOM_override
+touch $work/INPUT/SIS_override
+touch $work/INPUT/MOM_layout
+touch $work/INPUT/SIS_layout
+touch $work/INPUT/COBALT_input
+touch $work/INPUT/COBALT_override
+
+# Record the job stdout location for later use timings database
+cat >> $HOME/frejobs_stdout <<EOF_frejobs
+$stdoutDir/$FRE_JOBID
+EOF_frejobs
+
+cat > $work/INPUT/MOM_layout << MOM_LAYOUT_EOF
+#override IO_LAYOUT = $ocn_io_layout
+#override LAYOUT    = $ocn_layout
+#override MASKTABLE = $ocn_mask_table
+#override OCEAN_OMP_THREADS = $ocn_threads
+MOM_LAYOUT_EOF
+
+cat > $work/INPUT/SIS_layout << SIS_LAYOUT_EOF
+#override IO_LAYOUT = $ice_io_layout
+#override LAYOUT    = $ice_layout
+#override MASKTABLE = $ice_mask_table
+SIS_LAYOUT_EOF
+
+truncate -s 0 $work/INPUT/COBALT_input
+cat > $work/INPUT/COBALT_input << COBALT_INPUT_EOF
+! Put the contents of your COBALT_input file here
+do_case2_mod = True
+z_burial = 20.0
+z_denit = 20.0
+scale_burial = 1.0
+COBALT_INPUT_EOF
+
+cat > $work/INPUT/MOM_override << MOM_OVERRIDE_EOF
+! Have tide nodal correction use the start of the forecast
+#override OBC_TIDE_NODAL_REF_DATE = $(ystart),$(mstart),1
+! Set files to use for initial conditions.
+! These were extracted from the nudged run using
+! write_ics_from_snapshot.py
+#override THICKNESS_FILE = "forecast_ics_ocean_month_$(ystart)-$(mstart).nc"
+#override TS_FILE = "forecast_ics_ocean_month_$(ystart)-$(mstart).nc"
+#override SALT_FILE = "forecast_ics_ocean_month_$(ystart)-$(mstart).nc"
+#override VELOCITY_FILE = "forecast_ics_ocean_month_$(ystart)-$(mstart).nc"
+#override SURFACE_HEIGHT_IC_FILE = "forecast_ics_ocean_month_$(ystart)-$(mstart).nc"
+#override TEMP_IC_VAR = "thetao"
+#override SALT_IC_VAR = "so"
+#override SURFACE_HEIGHT_IC_VAR = "ssh"
+#--- BGC
+#override GENERIC_TRACER_IC_FILE = "forecast_ics_ocean_cobalt_tracers_$(ystart)-$(mstart).nc"
+DT_OBC_SEG_UPDATE_OBGC = 3600
+#override USE_OCMIP2_CFC = False
+#override USE_IDEAL_AGE_TRACER = False
+#override USE_generic_tracer = True
+#override MAX_FIELDS=500
+#override CHL_FROM_FILE = False
+#override PEN_SW_NBANDS = 3
+#override DO_GEOTHERMAL = True
+!--- Experimental reduced diagnostic z levels
+#override NUM_DIAG_COORDS = 2
+#override DIAG_COORDS = "z 01 ZSTAR,zlite 02 ZSTAR"
+#override DIAG_COORD_DEF_01 = "FILE:diag_dz.nc,dz"
+#override DIAG_COORD_DEF_02 = "FILE:diag_dz_lite.nc,dz"
+MOM_OVERRIDE_EOF
+
+cat > $work/INPUT/SIS_override << SIS_OVERRIDE_EOF
+! SPEAR forcing data is daily, so set this to true.
+#override ADD_DIURNAL_SW = True
+! Set files to use for initial conditions.
+! These were extracted from the nudged run using
+! write_ics_from_snapshot.py
+! Ice concentration:
+#override CONCENTRATION_INIT_CONFIG = "file"
+#override ICE_CONCENTRATION_FILE = "forecast_ics_ice_month_$(ystart)-$(mstart).nc"
+#override ICE_CONCENTRATION_IC_VAR = "aice"
+! Ice thickness:
+#override ICE_THICKNESS_INIT_CONFIG = "file"
+#override ICE_THICKNESS_FILE = "forecast_ics_ice_month_$(ystart)-$(mstart).nc"
+#override ICE_THICKNESS_IC_VAR = "hice"
+! Snow thickness:
+#override SNOW_THICKNESS_INIT_CONFIG = "file"
+#override SNOW_THICKNESS_FILE = "forecast_ics_ice_month_$(ystart)-$(mstart).nc"
+#override SNOW_THICKNESS_IC_VAR = "hsnow"
+! Ice salinity:
+#override ICE_SALINITY_INIT_CONFIG = "file"
+#override ICE_SALINITY_FILE = "forecast_ics_ice_month_$(ystart)-$(mstart).nc"
+#override ICE_SALINITY_IC_VAR = "S_bulkice"
+#override ICE_SALINITY_FILE_IS_2D = True
+! Ice temperature
+#override ICE_ENTHALPY_INIT_CONFIG = "file"
+#override READ_ENTHALPY_FILE = False
+#override ICE_TEMPERATURE_FILE = "forecast_ics_ice_month_$(ystart)-$(mstart).nc"
+#override ICE_TEMPERATURE_IC_VAR = "T_bulkice"
+#override ICE_TEMPERATURE_FILE_IS_2D = True
+! Snow temperature
+#override SNOW_ENTHALPY_INIT_CONFIG = "file"
+#override SNOW_TEMPERATURE_FILE = "forecast_ics_ice_month_$(ystart)-$(mstart).nc"
+#override SNOW_TEMPERATURE_IC_VAR = "TSN"
+#override SNOW_TEMPERATURE_FILE_IS_2D = True
+SIS_OVERRIDE_EOF
+      ]]>
+      </csh>
+    </input>
+    <runtime>
+        <production simTime="$(PROD_SIMTIME)" units="years">
+            <segment simTime="12" units="months"/>
+            <resources jobWallclock="06:00:00" segRuntime="06:00:00">
+                <ice                          layout = "50,50" io_layout = "1,1" mask_table="mask_table.854.50x50"/>
+                <ocn ranks="1646" threads="1" layout = "50,50" io_layout = "1,1" mask_table="mask_table.854.50x50"/>
+            </resources>
+        </production>
+        <regression name="test">
+            <run days="3">
+                <resources jobWallclock="00:20:00">
+                <ice                          layout = "40,40" io_layout = "1,1" mask_table="mask_table.535.40x40"/>
+                <ocn ranks="1065" threads="1" layout = "40,40" io_layout = "1,1" mask_table="mask_table.535.40x40"/>
+                </resources>
+            </run>
+        </regression>
+    </runtime>
+    <postProcess>
+      <csh><![CDATA[
+cd $work
+# Try zeroing out all restart files.
+# Completely deleting them definitely causes fre to fail.
+foreach file (RESTART/*)
+    truncate -s0 $file
+end
+# Archive an assortment of model input files and model metadata
+mkdir metadata.out
+mv MOM_parameter_doc* SIS_parameter_doc* COBALT_parameter_doc* metadata.out/
+cp diag_table input.nml metadata.out/
+cp INPUT/*_input INPUT/*_override metadata.out/
+# Save the Git commit hash for each source code submodule
+git -C $root/$(LIBS_ROOT)/src/mom6 submodule status --recursive > metadata.out/git_submodule_status
+# Archive a copy of the xml used to run the model and the run script (fre sets these)
+cp $rtsxml metadata.out/
+cp $scriptName metadata.out/runscript.csh
+#When the ocean uses a mask_table the ocean_static.nc file produced by the model run has holes in coordinates (geolon,geolat)
+#This causes problems for ferret and python tools for analysis.
+#Copy a non-masked version of ocean_static.nc to be saved as a history file to be used by the analysis scipts .
+cp $work/INPUT/ocean_static_no_mask_table.nc $work/ocean_static.nc
+      ]]></csh>
+      <!--
+      <refineDiag script="$(AWG_INPUT_HOME_GFDL)/../refineDiag/nechannel_means.csh"/>
+      <component type="nechannel_month_refined" start="$(ystart)" source="nechannel_month_refined">
+        <timeSeries freq="monthly" chunkLength="1yr" source="nechannel_month_refined"/>
+      </component>
+      <refineDiag script="$(AWG_INPUT_HOME_GFDL)/../refineDiag/region_means.csh"/>
+      <component type="ocean_neus_refined" start="$(ystart)" source="ocean_neus_refined">
+        <timeSeries freq="daily" chunkLength="1yr" source="ocean_neus_refined"/>
+      </component>
+      -->
+      <!--
+      <component type="ocean_daily"   start="$(ystart)" source="ocean_daily">
+        <timeSeries freq="daily" chunkLength="1yr" source="ocean_daily">
+          <variables>
+            tos tob ssh sshmin sshmax
+          </variables>
+        </timeSeries>
+      </component>
+      -->
+      <component type="ocean_month"   start="$(ystart)" source="ocean_month">
+        <timeSeries freq="monthly" chunkLength="1yr" source="ocean_month">
+          <variables>
+            ssh tos sos tob sob MLD_003 MLD_EN1 tosmin tosmax
+          </variables>
+        </timeSeries>
+      </component>
+      <component type="ocean_neus"   start="$(ystart)" source="ocean_neus">
+        <timeSeries freq="daily" chunkLength="1yr" source="ocean_neus">
+          <variables>
+            MLD_003 MLD_EN1 thetao so
+          </variables>
+        </timeSeries>
+      </component>
+      <component type="ocean_cobalt_neus"   start="$(ystart)" source="ocean_cobalt_neus">
+        <timeSeries freq="daily" chunkLength="1yr" source="ocean_cobalt_neus">
+          <variables>
+            chlos talkos no3os zmesoos
+          </variables>
+        </timeSeries>
+      </component>
+    </postProcess>
+  </experiment>
+<!-- Data files for forecasts with climatology boundary conditions-->
+<freInclude name="nwa12_data_clim">
+  <input>
+    <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+      <dataSource site="ncrc">/ncrc/home2/Andrew.C.Ross/nwa-xml/NWA12/MOM_inputs/forecast_clim/MOM_input</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/boundary/climatology_1993_2019/zos_c_1.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/boundary/climatology_1993_2019/zos_c_2.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/boundary/climatology_1993_2019/zos_c_3.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/boundary/climatology_1993_2019/uv_c_1.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/boundary/climatology_1993_2019/uv_c_2.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/boundary/climatology_1993_2019/uv_c_3.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/boundary/climatology_1993_2019/thetao_c_1.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/boundary/climatology_1993_2019/thetao_c_2.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/boundary/climatology_1993_2019/thetao_c_3.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/boundary/climatology_1993_2019/so_c_1.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/boundary/climatology_1993_2019/so_c_2.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/boundary/climatology_1993_2019/so_c_3.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/rivers/glofas_runoff_climo_1993_2019.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/tides/updated_2024-01/tu_001.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/tides/updated_2024-01/tu_002.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/tides/updated_2024-01/tu_003.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/tides/updated_2024-01/tz_001.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/tides/updated_2024-01/tz_002.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/tides/updated_2024-01/tz_003.nc</dataSource>
+    </dataFile>
+    <!-- Ocean static file without mask holes -->
+    <dataFile label="input" target="INPUT/ocean_static_no_mask_table.nc" chksum="" size="" timestamp="">
+      <dataSource site="ncrc">$(NWA12_WORLD)/ocean_static.nc</dataSource>
+    </dataFile>
+    <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+      <dataSource site="ncrc">/ncrc/home2/Andrew.C.Ross/nwa-xml/NWA12/MOM_inputs/2023_04/SIS_input</dataSource>
+      <dataSource site="gfdl">/home/Andrew.C.Ross/git/nwa-xml/NWA12/MOM_inputs/2023_04/SIS_input</dataSource>
+    </dataFile>
+  </input>
+</freInclude>
+
+<!-- Data files for forecasts with forecast OBCs. OBCs are set for each ensemble later. -->
+<freInclude name="nwa12_data_obcs">
+  <input>
+    <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+      <dataSource site="ncrc">/ncrc/home2/Andrew.C.Ross/nwa-xml/NWA12/MOM_inputs/forecast_obcs/MOM_input</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/rivers/glofas_runoff_climo_1993_2019.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/tides/updated_2024-01/tu_001.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/tides/updated_2024-01/tu_002.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/tides/updated_2024-01/tu_003.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/tides/updated_2024-01/tz_001.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/tides/updated_2024-01/tz_002.nc</dataSource>
+      <dataSource site="ncrc">$(NWA12_WORLD)/tides/updated_2024-01/tz_003.nc</dataSource>
+    </dataFile>
+    <!-- Ocean static file without mask holes -->
+    <dataFile label="input" target="INPUT/ocean_static_no_mask_table.nc" chksum="" size="" timestamp="">
+      <dataSource site="ncrc">$(NWA12_WORLD)/ocean_static.nc</dataSource>
+    </dataFile>
+    <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+      <dataSource site="ncrc">/ncrc/home2/Andrew.C.Ross/nwa-xml/NWA12/MOM_inputs/2023_04/SIS_input</dataSource>
+      <dataSource site="gfdl">/home/Andrew.C.Ross/git/nwa-xml/NWA12/MOM_inputs/2023_04/SIS_input</dataSource>
+    </dataFile>
+  </input>
+</freInclude>
+
+<freInclude name="bgc_data">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(GLOBAL_WORLD)/esm4_deposition/esm4_drydust_climo_1993-2014.nc</dataSource>
+    <dataSource site="ncrc">$(GLOBAL_WORLD)/esm4_deposition/esm4_wetdust_climo_1993-2014.nc</dataSource>
+    <dataSource site="ncrc">$(GLOBAL_WORLD)/esm4_deposition/esm4_dryfe_climo_1993-2014.nc</dataSource>
+    <dataSource site="ncrc">$(GLOBAL_WORLD)/esm4_deposition/esm4_wetfe_climo_1993-2014.nc</dataSource>
+    <dataSource site="ncrc">$(GLOBAL_WORLD)/esm4_deposition/esm4_drynh4_climo_1993-2014.nc</dataSource>
+    <dataSource site="ncrc">$(GLOBAL_WORLD)/esm4_deposition/esm4_wetnh4_climo_1993-2014.nc</dataSource>
+    <dataSource site="ncrc">$(GLOBAL_WORLD)/esm4_deposition/esm4_drynoy_climo_1993-2014.nc</dataSource>
+    <dataSource site="ncrc">$(GLOBAL_WORLD)/esm4_deposition/esm4_wetnoy_climo_1993-2014.nc</dataSource>
+    <dataSource site="ncrc">$(GLOBAL_WORLD)/co2/mole_fraction_of_co2_extended_ssp245_v2.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_WORLD)/bgc/2023-04/RiverNutrients_Integrated_NWA12_GLOFAS_RC4US1990to2022_2023_04_v2.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_WORLD)/bgc/2023-04/bgc_woa.nc</dataSource>
+    <!-- <dataSource site="ncrc">$(NWA12_WORLD)/forecast_input_data/boundary/esper_climo_year.nc</dataSource> -->
+    <!-- This file is temporarily in proj-shared since permissions are not set right for world -->
+    <dataSource site="ncrc">/gpfs/f6/ira-cefi/proj-shared/northwest_atlantic/nwa12_input/forecast_input_data/boundary/esper_climo_temp_extended.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_WORLD)/bgc/2023-04/bgc_cobalt.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+ <!-- The following includes specify the atmospheric forcing for each ensemble member-->
+
+<freInclude name="atmos-e01">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e01/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e01/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e01/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e01/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e01/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e01/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e01/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e01/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e02">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e02/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e02/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e02/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e02/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e02/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e02/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e02/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e02/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e03">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e03/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e03/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e03/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e03/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e03/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e03/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e03/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e03/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e04">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e04/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e04/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e04/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e04/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e04/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e04/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e04/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e04/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e05">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e05/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e05/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e05/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e05/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e05/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e05/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e05/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e05/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e06">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e06/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e06/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e06/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e06/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e06/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e06/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e06/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e06/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e07">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e07/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e07/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e07/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e07/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e07/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e07/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e07/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e07/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e08">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e08/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e08/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e08/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e08/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e08/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e08/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e08/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e08/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e09">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e09/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e09/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e09/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e09/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e09/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e09/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e09/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e09/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e10">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e10/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e10/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e10/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e10/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e10/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e10/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e10/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e10/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e11">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e11/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e11/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e11/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e11/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e11/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e11/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e11/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e11/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e12">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e12/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e12/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e12/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e12/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e12/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e12/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e12/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e12/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e13">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e13/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e13/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e13/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e13/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e13/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e13/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e13/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e13/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e14">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e14/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e14/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e14/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e14/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e14/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e14/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e14/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e14/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<freInclude name="atmos-e15">
+  <dataFile label="input" target="INPUT/" chksum="" size="" timestamp="">
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e15/atmos_daily.$(atmos_start)-$(atmos_end).slp.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e15/atmos_daily.$(atmos_start)-$(atmos_end).t_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e15/atmos_daily.$(atmos_start)-$(atmos_end).q_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e15/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.u_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e15/atmos_4xdaily.$(atmos_start)00-$(atmos_end)23.v_ref.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e15/atmos_daily.$(atmos_start)-$(atmos_end).lwdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e15/atmos_daily.$(atmos_start)-$(atmos_end).swdn_sfc.nc</dataSource>
+    <dataSource site="ncrc">$(NWA12_USER)/forecast_input_data/atmos/$(ystart)-$(mstart)-e15/atmos_daily.$(atmos_start)-$(atmos_end).precip.nc</dataSource>
+  </dataFile>
+</freInclude>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e01" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e01']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e02" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e02']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e03" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e03']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e04" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e04']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e05" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e05']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e06" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e06']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e07" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e07']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e08" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e08']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e09" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e09']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e10" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e10']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e11" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e11']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e12" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e12']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e13" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e13']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e14" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e14']/node())"/>
+  </input>
+</experiment>
+
+<experiment name="NWA12_cobalt_forecast_2024_09_$(ystart)-$(mstart)-e15" inherit="NWA12_cobalt_forecast_2024_09">
+  <description>
+    Forecast with climatology boundary conditions.
+  </description>
+  <input>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='nwa12_data_clim']/input/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='bgc_data']/node())"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(//freInclude[@name='atmos-e15']/node())"/>
+  </input>
+</experiment>
+
+</freInclude>

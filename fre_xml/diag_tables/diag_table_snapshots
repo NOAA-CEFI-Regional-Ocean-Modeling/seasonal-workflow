@@ -1,0 +1,78 @@
+"ocean_month_snap", 1, "months", 1, "days", "time",
+"ocean_model", "thetao",   "thetao",   "ocean_month_snap", "all", "none", "none", 2
+"ocean_model", "thkcello", "thkcello", "ocean_month_snap", "all", "none", "none", 2
+"ocean_model", "volcello", "volcello", "ocean_month_snap", "all", "none", "none", 2
+"ocean_model", "zos",      "zos",      "ocean_month_snap", "all", "none", "none", 2
+"ocean_model", "ssh",      "ssh",      "ocean_month_snap", "all", "none", "none", 2
+"ocean_model", "so",       "so",       "ocean_month_snap", "all", "none", "none", 2
+"ocean_model", "uo",       "uo",       "ocean_month_snap", "all", "none", "none", 2
+"ocean_model", "vo",       "vo",       "ocean_month_snap", "all", "none", "none", 2
+#
+"ice_month_snap", 1, "months", 1, "days", "time",
+"ice_model",   "siconc",   "aice",     "ice_month_snap",   "all", "none", "none", 2
+"ice_model",   "hi",       "hice",     "ice_month_snap",   "all", "none", "none", 2
+"ice_model",   "UI",       "uice",     "ice_month_snap",   "all", "none", "none", 2
+"ice_model",   "VI",       "vice",     "ice_month_snap",   "all", "none", "none", 2
+"ice_model",   "HS",       "hsnow",    "ice_month_snap",   "all", "none", "none", 2
+"ice_model",   "S_bulkice","S_bulkice","ice_month_snap",   "all", "none", "none", 2
+"ice_model",   "T_bulkice","T_bulkice","ice_month_snap",   "all", "none", "none", 2
+"ice_model",   "TSN",      "TSN",      "ice_month_snap",   "all", "none", "none", 2
+#
+"ocean_cobalt_tracers_snap", 1, "months", 1, "days", "time",
+"ocean_model",    "volcello",     "volcello",     "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "alk",          "alk",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "cadet_arag",   "cadet_arag",   "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "cadet_calc",   "cadet_calc",   "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "cased",        "cased",        "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "chl",          "chl",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "co3_ion",      "co3_ion",      "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "dic",          "dic",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "fed",          "fed",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "fedet",        "fedet",        "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "fedi",         "fedi",         "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "felg",         "felg",         "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "femd",         "femd",         "ocean_cobalt_tracers_snap" ,"all" ,"none" ,"none", 2
+"generic_cobalt", "fesm",         "fesm",         "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "htotal",       "htotal",       "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "irr_aclm",     "irr_aclm",     "ocean_cobalt_tracers_snap", "all", "none", "none", 2 
+"generic_cobalt", "irr_aclm_sfc", "irr_aclm_sfc", "ocean_cobalt_tracers_snap", "all", "none", "none", 2 
+"generic_cobalt", "irr_aclm_z",   "irr_aclm_z",   "ocean_cobalt_tracers_snap", "all", "none", "none", 2 
+"generic_cobalt", "irr_mem",      "irr_mem",      "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "irr_mem_dp",   "irr_mem_dp",   "ocean_cobalt_tracers_snap", "all", "none", "none", 2 
+"generic_cobalt", "ldon",         "ldon",         "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "ldop",         "ldop",         "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "lith",         "lith",         "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "lithdet",      "lithdet",      "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "mu_mem_ndi",   "mu_mem_ndi",   "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "mu_mem_nlg",   "mu_mem_nlg",   "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "mu_mem_nmd",   "mu_mem_nmd",   "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "mu_mem_nsm",   "mu_mem_nsm",   "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "nbact",        "nbact",        "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "ndet",         "ndet",         "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "ndi",          "ndi",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "nh3",          "nh3",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "nh4",          "nh4",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "nlg",          "nlg",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "nlgz",         "nlgz",         "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "nmd",          "nmd",          "ocean_cobalt_tracers_snap" ,"all" ,"none" ,"none", 2
+"generic_cobalt", "nmdz",         "nmdz",         "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "no3",          "no3",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "nsm",          "nsm",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "nsmz",         "nsmz",         "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "o2",           "o2",           "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "pdet",         "pdet",         "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "pdi",          "pdi",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "plg",          "plg",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "pmd",          "pmd",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "po4",          "po4",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "psm",          "psm",          "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "sldon",        "sldon",        "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "sldop",        "sldop",        "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "sidet",        "sidet",        "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "silg",         "silg",         "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "simd",         "simd",         "ocean_cobalt_tracers_snap" ,"all" ,"none" ,"none", 2
+"generic_cobalt", "sio4",         "sio4",         "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "srdon",        "srdon",        "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+"generic_cobalt", "srdop",        "srdop",        "ocean_cobalt_tracers_snap", "all", "none", "none", 2
+
+
