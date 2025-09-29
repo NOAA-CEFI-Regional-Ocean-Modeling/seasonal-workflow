@@ -1,5 +1,5 @@
 import re
-from subprocess import CompletedProcess, run
+from subprocess import CalledProcessError, CompletedProcess, run
 from typing import Any
 
 import numpy as np
@@ -19,7 +19,16 @@ def run_cmd(cmd: str, escape: bool = False, **kwargs: Any) -> CompletedProcess:
         esc_cmd = re.sub(r'([\(\)])', r'\\\1', cmd)
     else:
         esc_cmd = cmd
-    return run(esc_cmd, shell=True, check=True, **kwargs)
+    try:
+        res = run(esc_cmd, shell=True, check=True, **kwargs)
+    except CalledProcessError as err:
+        if err.stderr is not None:
+            logger.error(err.stderr)
+        if err.stdout is not None:
+            logger.error(err.stdout)
+        raise err
+    else:
+        return res
 
 def pad_ds(ds: xarray.Dataset) -> xarray.Dataset:
     if not isinstance(ds.time.values[0], np.datetime64):
