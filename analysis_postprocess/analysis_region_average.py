@@ -21,6 +21,7 @@ if __name__ == '__main__':
     last_year = config.climatology.last_year
     masks = xarray.open_dataset(config.regions.mask_file)
     pp = config.filesystem.analysis_history.parents[0]
+    logger.info('Opening {d} {v} from {pp}', d=args.domain, v=args.var, pp=pp)
     ds = open_var(pp, args.domain, args.var)
     # If later years of the analysis were run as separate
     # experiments, open them too.
