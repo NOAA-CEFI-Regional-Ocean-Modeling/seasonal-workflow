@@ -1,8 +1,8 @@
 # conda activate uwtools
-# uw rocoto realize --config-file retrospective_workflow.yaml --output-file retrospective_workflow.xml
-# /home/acr/git/rocoto/bin/rocotorun -d retrospective_workflow.db -w retrospective_workflow.xml
-# /home/acr/git/rocoto/bin/rocotostat -d retrospective_workflow.db -w retrospective_workflow.xml
-# or /home/acr/git/rocoto/bin/rocotoboot -d retrospective_workflow.db -w retrospective_workflow.xml -c all -t <TASK_TO_RUN>
+# uw rocoto realize --config-file near_realtime_postprocess.yaml --output-file near_realtime_postprocess.xml
+# /home/acr/git/rocoto/bin/rocotorun -d near_realtime_postprocess.db -w near_realtime_postprocess.xml
+# /home/acr/git/rocoto/bin/rocotostat -d near_realtime_postprocess.db -w near_realtime_postprocess.xml
+# or /home/acr/git/rocoto/bin/rocotoboot -d near_realtime_postprocess.db -w near_realtime_postprocess.xml -c all -t <TASK_TO_RUN>
 workflow:
   attrs:
     realtime: true

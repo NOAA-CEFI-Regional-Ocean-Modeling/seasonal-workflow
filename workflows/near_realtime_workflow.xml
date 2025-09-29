@@ -1,0 +1,413 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE workflow [
+  <!ENTITY ANALYSIS_INPUT "/work/acr/mom6/nwa12/analysis_input_data">
+  <!ENTITY FORECAST_INPUT "/work/acr/mom6/nwa12/forecast_input_data">
+  <!ENTITY GAEA_INPUT "gaea:/gpfs/f6/ira-cefi/scratch/Andrew.C.Ross/northwest_atlantic/nwa12_input">
+  <!ENTITY ARCHIVE_INPUT "/archive/acr/mom6_input/forecasts">
+  <!ENTITY CONFIG "/home/acr/git/seasonal-workflow/config_nwa12_cobalt.yaml">
+  <!ENTITY ENV_SETUP "source /home/acr/git/seasonal-workflow/workflows/env_setup.sh;">
+  <!ENTITY QC_SETUP "source /home/acr/git/ncqc/.venv/bin/activate;">
+  <!ENTITY LOGS "/home/acr/git/seasonal-workflow/workflows/logs">
+]>
+<workflow realtime="True" scheduler="slurm">
+  <cycledef group="default">0 0 1 */3 2025 *</cycledef>
+  <log>
+    <cyclestr>/home/acr/git/seasonal-workflow/workflows/log_@Y-@m.log</cyclestr>
+  </log>
+  <task name="write_spear_atmos" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>02:00:00</walltime>
+    <command>
+      <cyclestr>&ENV_SETUP; python write_spear_atmos.py -c &CONFIG; -y @Y -m @m</cyclestr>
+    </command>
+    <jobname>write_spear_atmos</jobname>
+    <native>-D /home/acr/git/seasonal-workflow/forecast_setup/ --output=&LOGS;/spear_atmos_%j.out</native>
+    <dependency>
+      <sh shell="/bin/csh" name="">
+        <cyclestr>test -d /archive/l1j/spear_med/rf_hist/fcst/s_j11_OTA_IceAtmRes_L33/i@Y@m01_OTA_IceAtmRes_L33/pp_ens_10</cyclestr>
+      </sh>
+    </dependency>
+  </task>
+  <metatask name="qc_spear_atmos_daily" mode="parallel" throttle="6">
+    <var name="variable">lwdn_sfc precip q_ref slp swdn_sfc t_ref</var>
+    <task name="qc_spear_#variable#" cycledefs="default" maxtries="2">
+      <nodes>1:ppn=1</nodes>
+      <partition>batch</partition>
+      <walltime>0:05:00</walltime>
+      <command>
+        <cyclestr>&QC_SETUP; find &FORECAST_INPUT;/atmos/@Y-@m-e??/ -name "*#variable#*" -type f -print0 | xargs -0 -n 1 sh -c '/nbhome/acr/local/bin/uv run /home/acr/git/ncqc/ncqc.py  "$1" -c workflows/qc_atmos.yaml workflows/qc_daily.yaml --fail-on-error || exit 255' _</cyclestr>
+      </command>
+      <jobname>qc_spear_#variable#</jobname>
+      <native>-D /home/acr/git/seasonal-workflow  --output=&LOGS;/spear_qc_%j.out</native>
+      <dependency>
+        <taskdep task="write_spear_atmos"/>
+      </dependency>
+    </task>
+  </metatask>
+  <metatask name="qc_spear_atmos_4xdaily" mode="parallel" throttle="2">
+    <var name="variable">u_ref v_ref</var>
+    <task name="qc_spear_#variable#" cycledefs="default" maxtries="1">
+      <nodes>1:ppn=1</nodes>
+      <partition>batch</partition>
+      <walltime>0:05:00</walltime>
+      <command>
+        <cyclestr>&QC_SETUP; find &FORECAST_INPUT;/atmos/@Y-@m-e??/ -name "*#variable#*" -type f -print0 | xargs -0 -n 1 sh -c '/nbhome/acr/local/bin/uv run /home/acr/git/ncqc/ncqc.py  "$1" -c workflows/qc_atmos.yaml --fail-on-error || exit 255' _</cyclestr>
+      </command>
+      <jobname>qc_spear_#variable#</jobname>
+      <native>-D /home/acr/git/seasonal-workflow  --output=&LOGS;/spear_qc_%j.out</native>
+      <dependency>
+        <taskdep task="write_spear_atmos"/>
+      </dependency>
+    </task>
+  </metatask>
+  <task name="spear_gaea" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>0:30:00</walltime>
+    <command>
+      <cyclestr>&ENV_SETUP; gcp -cd -r -v &FORECAST_INPUT;/atmos/@Y-@m-e?? &GAEA_INPUT;/forecast_input_data/atmos/</cyclestr>
+    </command>
+    <jobname>spear_gaea</jobname>
+    <native>--output=&LOGS;/spear_gaea_%j.out</native>
+    <dependency>
+      <and>
+        <metataskdep metatask="qc_spear_atmos_daily"/>
+        <metataskdep metatask="qc_spear_atmos_4xdaily"/>
+      </and>
+    </dependency>
+  </task>
+  <task name="spear_archive" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>0:10:00</walltime>
+    <command>
+      <cyclestr>&ENV_SETUP; gcp -cd -r -v &FORECAST_INPUT;/atmos/@Y-@m-e?? &ARCHIVE_INPUT;/@Y/@m/atmos/</cyclestr>
+    </command>
+    <jobname>spear_archive</jobname>
+    <native>--output=&LOGS;/spear_archive_%j.out</native>
+    <dependency>
+      <and>
+        <metataskdep metatask="qc_spear_atmos_daily"/>
+        <metataskdep metatask="qc_spear_atmos_4xdaily"/>
+      </and>
+    </dependency>
+  </task>
+  <task name="write_boundary" cycledefs="default">
+    <nodes>1:ppn=4</nodes>
+    <partition>analysis</partition>
+    <walltime>04:00:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; python write_boundary_reanalysis.py -c &CONFIG; -y @Y -m @m --update</cyclestr>
+    </command>
+    <jobname>write_boundary</jobname>
+    <native>-D /home/acr/git/seasonal-workflow/analysis_setup/boundary --output=&LOGS;/write_boundary_%j.out</native>
+    <dependency>
+      <and>
+        <sh shell="/bin/csh" name="so">
+          <cyclestr offset="-01:00:00:00">test -d /archive/uda/CEFI/GLOBAL_ANALYSISFORECAST_PHY_001_024/cmems_mod_glo_phy-so_anfc_0.083deg_P1D-m_202406/@Y/@m</cyclestr>
+        </sh>
+        <sh shell="/bin/csh" name="thetao">
+          <cyclestr offset="-01:00:00:00">test -d /archive/uda/CEFI/GLOBAL_ANALYSISFORECAST_PHY_001_024/cmems_mod_glo_phy-thetao_anfc_0.083deg_P1D-m_202406/@Y/@m</cyclestr>
+        </sh>
+        <sh shell="/bin/csh" name="zos">
+          <cyclestr offset="-01:00:00:00">test -d /archive/uda/CEFI/GLOBAL_ANALYSISFORECAST_PHY_001_024/cmems_mod_glo_phy_anfc_0.083deg_P1D-m_202406/@Y/@m</cyclestr>
+        </sh>
+        <sh shell="/bin/csh" name="currents">
+          <cyclestr offset="-01:00:00:00">test -d /archive/uda/CEFI/GLOBAL_ANALYSISFORECAST_PHY_001_024/cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m_202406/@Y/@m</cyclestr>
+        </sh>
+      </and>
+    </dependency>
+  </task>
+  <task name="concat_boundary" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>00:30:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; python concat_boundary_reanalysis.py -c &CONFIG; -y @Y</cyclestr>
+    </command>
+    <jobname>concat_boundary</jobname>
+    <native>-D /home/acr/git/seasonal-workflow/analysis_setup/boundary --output=&LOGS;/concat_boundary_%j.out</native>
+    <dependency>
+      <taskdep task="write_boundary"/>
+    </dependency>
+  </task>
+  <task name="boundary_gaea" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>0:30:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; gcp -cd -v &ANALYSIS_INPUT;/boundary/*_???_@Y.nc &GAEA_INPUT;/analysis_input_data/boundary/</cyclestr>
+    </command>
+    <jobname>boundary_gaea</jobname>
+    <native>--output=&LOGS;/boundary_gaea_%j.out</native>
+    <dependency>
+      <taskdep task="concat_boundary"/>
+    </dependency>
+  </task>
+  <task name="boundary_archive" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>0:10:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; gcp -cd -v &ANALYSIS_INPUT;/boundary/*_???_@Y.nc &ARCHIVE_INPUT;/@Y/@m/boundary/</cyclestr>
+    </command>
+    <jobname>boundary_archive</jobname>
+    <native>--output=&LOGS;/boundary_archive_%j.out</native>
+    <dependency>
+      <taskdep task="concat_boundary"/>
+    </dependency>
+  </task>
+  <task name="write_nudging_data" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>00:30:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; python write_nudging_data.py -c &CONFIG; -y @Y</cyclestr>
+    </command>
+    <jobname>write_nudging_data</jobname>
+    <native>-D /home/acr/git/seasonal-workflow/analysis_setup/sponge --output=&LOGS;/nudging_data_%j.out</native>
+    <dependency>
+      <taskdep task="write_boundary"/>
+    </dependency>
+  </task>
+  <task name="nudging_gaea" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>01:00:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; gcp -cd -v &ANALYSIS_INPUT;/sponge/glorys_sponge_monthly_bnd_@Y.nc &GAEA_INPUT;/analysis_input_data/sponge/</cyclestr>
+    </command>
+    <jobname>nudging_gaea</jobname>
+    <native>--output=&LOGS;/nudging_gaea_%j.out</native>
+    <dependency>
+      <taskdep task="write_nudging_data"/>
+    </dependency>
+  </task>
+  <task name="nudging_archive" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>01:00:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; gcp -cd -v &ANALYSIS_INPUT;/sponge/glorys_sponge_monthly_bnd_@Y.nc &ARCHIVE_INPUT;/@Y/@m/sponge/</cyclestr>
+    </command>
+    <jobname>nudging_archive</jobname>
+    <native>--output=&LOGS;/nudging_archive_%j.out</native>
+    <dependency>
+      <taskdep task="write_nudging_data"/>
+    </dependency>
+  </task>
+  <task name="write_runoff_glofas" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>01:00:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; python write_runoff_glofas.py -c &CONFIG; -y @Y --modify</cyclestr>
+    </command>
+    <jobname>write_runoff_glofas</jobname>
+    <native>-D /home/acr/git/seasonal-workflow/analysis_setup/rivers --output=&LOGS;/runoff_glofas_%j.out</native>
+    <dependency>
+      <and>
+        <datadep>
+          <cyclestr offset="-01:00:00:00">/archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc</cyclestr>
+        </datadep>
+        <sh shell="/bin/bash" name="month">
+          <cyclestr>[ $(date -r /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc +%m ) -ge @m ]</cyclestr>
+        </sh>
+        <sh shell="/bin/bash" name="year">
+          <cyclestr>[ $(date -r /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc +%Y ) -ge @Y ]</cyclestr>
+        </sh>
+      </and>
+    </dependency>
+  </task>
+  <task name="runoff_gaea" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>0:30:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; gcp -cd -v &ANALYSIS_INPUT;/rivers/glofasv4_runoff_@Y.nc &GAEA_INPUT;/analysis_input_data/rivers/</cyclestr>
+    </command>
+    <jobname>runoff_gaea</jobname>
+    <native>--output=&LOGS;/runoff_gaea_%j.out</native>
+    <dependency>
+      <taskdep task="write_runoff_glofas"/>
+    </dependency>
+  </task>
+  <task name="runoff_archive" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>0:10:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; gcp -cd -v &ANALYSIS_INPUT;/rivers/glofasv4_runoff_@Y.nc &ARCHIVE_INPUT;/${now_year}/${now_month}/rivers/</cyclestr>
+    </command>
+    <jobname>runoff_archive</jobname>
+    <native>--output=&LOGS;/runoff_archive_%j.out</native>
+    <dependency>
+      <taskdep task="write_runoff_glofas"/>
+    </dependency>
+  </task>
+  <task name="pad_era5" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>01:00:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; python pad_era5.py -c &CONFIG; -y @Y</cyclestr>
+    </command>
+    <jobname>pad_era5</jobname>
+    <native>-D /home/acr/git/seasonal-workflow/analysis_setup/atmos --output=&LOGS;/pad_era5_%j.out</native>
+    <dependency>
+      <and>
+        <datadep>
+          <cyclestr offset="-01:00:00:00">/archive/uda/CEFI/ERA5/2m_dewpoint_temperature/ERA5_2m_dewpoint_temperature_@m@Y.nc</cyclestr>
+        </datadep>
+        <datadep>
+          <cyclestr offset="-01:00:00:00">/archive/uda/CEFI/ERA5/mean_sea_level_pressure/ERA5_mean_sea_level_pressure_@m@Y.nc</cyclestr>
+        </datadep>
+        <datadep>
+          <cyclestr offset="-01:00:00:00">/archive/uda/CEFI/ERA5/snowfall/ERA5_snowfall_@m@Y.nc</cyclestr>
+        </datadep>
+        <datadep>
+          <cyclestr offset="-01:00:00:00">/archive/uda/CEFI/ERA5/surface_solar_radiation_downwards/ERA5_surface_solar_radiation_downwards_@m@Y.nc</cyclestr>
+        </datadep>
+        <datadep>
+          <cyclestr offset="-01:00:00:00">/archive/uda/CEFI/ERA5/surface_thermal_radiation_downwards/ERA5_surface_thermal_radiation_downwards_@m@Y.nc</cyclestr>
+        </datadep>
+        <datadep>
+          <cyclestr offset="-01:00:00:00">/archive/uda/CEFI/ERA5/2m_temperature/ERA5_2m_temperature_@m@Y.nc</cyclestr>
+        </datadep>
+        <datadep>
+          <cyclestr offset="-01:00:00:00">/archive/uda/CEFI/ERA5/total_precipitation/ERA5_total_precipitation_@m@Y.nc</cyclestr>
+        </datadep>
+        <datadep>
+          <cyclestr offset="-01:00:00:00">/archive/uda/CEFI/ERA5/10m_u_component_of_wind/ERA5_10m_u_component_of_wind_@m@Y.nc</cyclestr>
+        </datadep>
+        <datadep>
+          <cyclestr offset="-01:00:00:00">/archive/uda/CEFI/ERA5/10m_v_component_of_wind/ERA5_10m_v_component_of_wind_@m@Y.nc</cyclestr>
+        </datadep>
+      </and>
+    </dependency>
+  </task>
+  <task name="era5_lp" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>00:30:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; python era5_lp.py -t &ANALYSIS_INPUT;/atmos/ERA5_tp_@Y_padded.nc -s &ANALYSIS_INPUT;/atmos/ERA5_sf_@Y_padded.nc -o &ANALYSIS_INPUT;/atmos/</cyclestr>
+    </command>
+    <jobname>era5_lp</jobname>
+    <native>-D /home/acr/git/seasonal-workflow/analysis_setup/atmos --output=&LOGS;/era5_lp_%j.out</native>
+    <dependency>
+      <taskdep task="pad_era5"/>
+    </dependency>
+  </task>
+  <task name="era5_sphum" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>0:30:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; python era5_sphum.py -d &ANALYSIS_INPUT;/atmos/ERA5_d2m_@Y_padded.nc -p &ANALYSIS_INPUT;/atmos/ERA5_msl_@Y_padded.nc</cyclestr>
+    </command>
+    <jobname>era5_sphum</jobname>
+    <native>-D /home/acr/git/seasonal-workflow/analysis_setup/atmos --output=&LOGS;/era5_sphum_%j.out</native>
+    <dependency>
+      <taskdep task="pad_era5"/>
+    </dependency>
+  </task>
+  <metatask name="qc_era5" mode="parallel" throttle="6">
+    <var name="variable">lp msl sf sphum ssrd strd t2m u10 v10</var>
+    <task name="qc_era5_#variable#" cycledefs="default" maxtries="2">
+      <nodes>1:ppn=1</nodes>
+      <partition>batch</partition>
+      <walltime>0:05:00</walltime>
+      <command>
+        <cyclestr>&QC_SETUP; /nbhome/acr/local/bin/uv run /home/acr/git/ncqc/ncqc.py &ANALYSIS_INPUT;/atmos/ERA5_#variable#_@Y_padded.nc -c workflows/qc_atmos.yaml workflows/qc_hourly.yaml --fail-on-error</cyclestr>
+      </command>
+      <jobname>qc_era5_#variable#</jobname>
+      <native>-D /home/acr/git/seasonal-workflow  --output=&LOGS;/era5_qc_%j.out</native>
+      <dependency>
+        <and>
+          <taskdep task="pad_era5"/>
+          <taskdep task="era5_sphum"/>
+          <taskdep task="era5_lp"/>
+        </and>
+      </dependency>
+    </task>
+  </metatask>
+  <task name="era5_gaea" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>7200</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; gcp -cd -v ERA5_strd_@Y_padded.nc ERA5_ssrd_@Y_padded.nc ERA5_lp_@Y_padded.nc ERA5_sf_@Y_padded.nc ERA5_msl_@Y_padded.nc ERA5_t2m_@Y_padded.nc ERA5_sphum_@Y_padded.nc ERA5_u10_@Y_padded.nc ERA5_v10_@Y_padded.nc &GAEA_INPUT;/analysis_input_data/atmos/</cyclestr>
+    </command>
+    <jobname>era5_gaea</jobname>
+    <native>-D &ANALYSIS_INPUT;/atmos/ --output=&LOGS;/era5_gaea_%j.out</native>
+    <dependency>
+      <and>
+        <taskdep task="pad_era5"/>
+        <taskdep task="era5_sphum"/>
+        <taskdep task="era5_lp"/>
+        <metataskdep metatask="qc_era5"/>
+      </and>
+    </dependency>
+  </task>
+  <task name="era5_archive" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>00:30:00</walltime>
+    <command>
+      <cyclestr offset="-01:00:00:00">&ENV_SETUP; gcp -cd -v ERA5_strd_@Y_padded.nc ERA5_ssrd_@Y_padded.nc ERA5_lp_@Y_padded.nc ERA5_sf_@Y_padded.nc ERA5_msl_@Y_padded.nc ERA5_t2m_@Y_padded.nc ERA5_sphum_@Y_padded.nc ERA5_u10_@Y_padded.nc ERA5_v10_@Y_padded.nc &ARCHIVE_INPUT;/${now_year}/${now_month}/atmos/</cyclestr>
+    </command>
+    <jobname>era5_archive</jobname>
+    <native>-D &ANALYSIS_INPUT;/atmos/ --output=&LOGS;/era5_archive_%j.out</native>
+    <dependency>
+      <and>
+        <taskdep task="pad_era5"/>
+        <taskdep task="era5_sphum"/>
+        <taskdep task="era5_lp"/>
+        <metataskdep metatask="qc_era5"/>
+      </and>
+    </dependency>
+  </task>
+  <task name="write_ics" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>analysis</partition>
+    <walltime>02:00:00</walltime>
+    <command>
+      <cyclestr>&ENV_SETUP; python write_ics_from_snapshot.py -c &CONFIG; -y @Y -m @m --now --rerun</cyclestr>
+    </command>
+    <jobname>write_ics</jobname>
+    <native>-D /home/acr/git/seasonal-workflow/forecast_setup/ --output=&LOGS;/ics_%j.out</native>
+    <dependency>
+      <datadep>
+        <cyclestr>/archive/acr/fre/NWA/2024_09/NWA12_COBALT_2024_09_i@Y@m/gfdl.ncrc6-intel23-prod/history/@Y0101.nc.tar</cyclestr>
+      </datadep>
+    </dependency>
+  </task>
+  <task name="ics_gaea" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>03:00:00</walltime>
+    <command>
+      <cyclestr>&ENV_SETUP; gcp -cd -v &FORECAST_INPUT;/initial/forecast_ics_@Y-@m.tar &GAEA_INPUT;/forecast_input_data/initial/</cyclestr>
+    </command>
+    <jobname>ics_gaea</jobname>
+    <native>--output=&LOGS;/ics_gaea_%j.out</native>
+    <dependency>
+      <taskdep task="write_ics"/>
+    </dependency>
+  </task>
+  <task name="ics_archive" cycledefs="default">
+    <nodes>1:ppn=1</nodes>
+    <partition>batch</partition>
+    <walltime>01:00:00</walltime>
+    <command>
+      <cyclestr>&ENV_SETUP; gcp -cd -v &FORECAST_INPUT;/initial/forecast_ics_@Y-@m.tar &ARCHIVE_INPUT;/@Y/@m/initial/</cyclestr>
+    </command>
+    <jobname>ics_archive</jobname>
+    <native>--output=&LOGS;/ics_archive_%j.out</native>
+    <dependency>
+      <taskdep task="write_ics"/>
+    </dependency>
+  </task>
+</workflow>
