@@ -285,13 +285,15 @@ workflow:
           sh_month:
             command:
               cyclestr:
-                value: "[ $(date -r /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc +%m ) -ge @m ]"
+                # rocoto does not short circuit after the datadep above, so we need to
+                # confirm here too that the file exists before running date on it.
+                value: "[ -f /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc ] && [ $(date -r /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc +%m ) -ge @m ]"
             attrs:
               shell: "/bin/bash"
           sh_year:
             command:
               cyclestr:
-                value: "[ $(date -r /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc +%Y ) -ge @Y ]"
+                value: "[ -f /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc ] && [ $(date -r /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc +%Y ) -ge @Y ]"
             attrs:
               shell: "/bin/bash"
     task_runoff_gaea:

@@ -212,10 +212,10 @@
           <cyclestr offset="-01:00:00:00">/archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc</cyclestr>
         </datadep>
         <sh shell="/bin/bash" name="month">
-          <cyclestr>[ $(date -r /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc +%m ) -ge @m ]</cyclestr>
+          <cyclestr>[ -f /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc ] &amp;&amp; [ $(date -r /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc +%m ) -ge @m ]</cyclestr>
         </sh>
         <sh shell="/bin/bash" name="year">
-          <cyclestr>[ $(date -r /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc +%Y ) -ge @Y ]</cyclestr>
+          <cyclestr>[ -f /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc ] &amp;&amp; [ $(date -r /archive/uda/CEFI/GloFAS/GloFAS_river_discharge_@Y_v4.0.nc +%Y ) -ge @Y ]</cyclestr>
         </sh>
       </and>
     </dependency>
