@@ -10,7 +10,7 @@ workflow:
   cycledef:
     - attrs:
         group: default
-      spec: "0 0 1 */3 2025 *"
+      spec: "0 0 1 */3 2026 *"
   log:
     cyclestr:
       value: /home/acr/git/seasonal-workflow/workflows/log_@Y-@m.log

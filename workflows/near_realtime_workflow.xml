@@ -10,7 +10,7 @@
   <!ENTITY LOGS "/home/acr/git/seasonal-workflow/workflows/logs">
 ]>
 <workflow realtime="True" scheduler="slurm">
-  <cycledef group="default">0 0 1 */3 2025 *</cycledef>
+  <cycledef group="default">0 0 1 */3 2026 *</cycledef>
   <log>
     <cyclestr>/home/acr/git/seasonal-workflow/workflows/log_@Y-@m.log</cyclestr>
   </log>
