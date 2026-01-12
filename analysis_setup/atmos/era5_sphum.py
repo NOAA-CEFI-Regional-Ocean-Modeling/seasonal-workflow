@@ -4,15 +4,16 @@ from pathlib import Path
 from workflow_tools.utils import run_cmd
 
 
-def main(d2m_file: Path, sp_file: Path, tmpdir: Path, outdir: Path | str | None = None
-         ) -> None:
+def main(
+    d2m_file: Path, sp_file: Path, tmpdir: Path, outdir: Path | str | None = None
+) -> None:
     if outdir is None:
         outdir = d2m_file.parent
     # Not critical but ensures str can be represented as a path
     elif isinstance(outdir, str):
         outdir = Path(outdir)
     svp_file = tmpdir / 'svp_tmp.nc'
-    sphum_file = d2m_file.name.replace('d2m', 'sphum') # assuming d2m in name
+    sphum_file = d2m_file.name.replace('d2m', 'sphum')  # assuming d2m in name
     run_cmd(f'gcp {d2m_file} {tmpdir}')
     run_cmd(f'gcp {sp_file} {tmpdir}')
     run_cmd(

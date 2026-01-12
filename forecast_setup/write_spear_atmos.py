@@ -35,7 +35,7 @@ def write_atmos(
     work_dir: Path,
     lat_slice,
     lon_slice,
-    rerun: bool = False
+    rerun: bool = False,
 ) -> None:
     out_dir = work_dir / f'{ystart}-{mstart:02d}-e{ens:02d}'
     if rerun or not out_dir.is_dir():
@@ -87,7 +87,7 @@ def write_atmos_all_members(
     work_dir: Path,
     lat_slice,
     lon_slice,
-    rerun: bool = False
+    rerun: bool = False,
 ) -> None:
     # Read mask for flooding
     static = xarray.open_dataset('/work/acr/spear/atmos.static.nc')
@@ -178,8 +178,11 @@ if __name__ == '__main__':
     work_dir.mkdir(exist_ok=True)
 
     if args.ensemble == -1:
-        nens = config.new_forecasts.ensemble_size if args.new \
+        nens = (
+            config.new_forecasts.ensemble_size
+            if args.new
             else config.retrospective_forecasts.ensemble_size
+        )
         write_atmos_all_members(
             args.year, args.month, nens, work_dir, yslice, xslice, rerun=args.rerun
         )

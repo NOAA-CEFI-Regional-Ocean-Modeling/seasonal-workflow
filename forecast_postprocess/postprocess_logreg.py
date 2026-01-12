@@ -14,7 +14,7 @@ def logreg_mle(
     X: NDArray[np.float64],  # noqa: N803
     y: NDArray[np.float64],
     tol: float = 1e-5,
-    max_iter: int = 50
+    max_iter: int = 50,
 ) -> NDArray[np.float64]:
     _n_samples, n_features = X.shape
     w = np.zeros(n_features)
@@ -49,12 +49,10 @@ def logreg_mle(
 
 @jit(parallel=True, nogil=True)
 def apply_logreg_mle(
-    xd: NDArray[np.float64],
-    qd: NDArray[np.float64],
-    yd: NDArray[np.float64]
+    xd: NDArray[np.float64], qd: NDArray[np.float64], yd: NDArray[np.float64]
 ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     # assuming dimensions are <init, lat, lon, quantile>
-    ni, ny, nx, nq = qd.shape #noqa: RUF059
+    ni, ny, nx, nq = qd.shape  # noqa: RUF059
     a = np.full((ny, nx), np.nan)
     b = np.full((ny, nx), np.nan)
     c = np.full((ny, nx), np.nan)

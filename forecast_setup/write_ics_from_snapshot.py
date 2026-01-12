@@ -181,19 +181,12 @@ def ics_from_snapshot(component, history, ystart, mstart, force_extract=False): 
 
 def main(config: Config, year: int, month: int, now: bool):
     if now:
-        history = Path(
-            config.filesystem.nowcast_history.format(
-                year=year, month=month
-            )
-        )
+        history = Path(config.filesystem.nowcast_history.format(year=year, month=month))
     else:
         history = config.filesystem.analysis_history
     outdir = config.filesystem.forecast_input_data / 'initial'
     outdir.mkdir(exist_ok=True)
-    tmp_files = [
-        ics_from_snapshot(c, history, year, month)
-        for c in config.snapshots
-    ]
+    tmp_files = [ics_from_snapshot(c, history, year, month) for c in config.snapshots]
     file_str = ' '.join(x.name for x in tmp_files)
     tarfile = f'{outdir.as_posix()}/forecast_ics_{year}-{month:02d}.tar'
     cmd = f'tar cvf {tarfile} -C {TMP} {file_str}'

@@ -32,6 +32,7 @@ def run_cmd(cmd: str, escape: bool = False, **kwargs: Any) -> CompletedProcess:
     else:
         return res
 
+
 def pad_ds(ds: xarray.Dataset) -> xarray.Dataset:
     if not isinstance(ds.time.values[0], np.datetime64):
         # use python datetimes

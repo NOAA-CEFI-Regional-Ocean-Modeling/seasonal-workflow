@@ -25,8 +25,10 @@ if __name__ == '__main__':
     ds = open_var(pp, args.domain, args.var)
     # If later years of the analysis were run as separate
     # experiments, open them too.
-    if hasattr(config.filesystem, 'analysis_extensions') and \
-          config.filesystem.analysis_extensions is not None:
+    if (
+        hasattr(config.filesystem, 'analysis_extensions')
+        and config.filesystem.analysis_extensions is not None
+    ):
         for ext_path in config.filesystem.analysis_extensions:
             logger.info(f'Extending with {ext_path}')
             ext_ds = open_var(ext_path.parents[0], args.domain, args.var)
