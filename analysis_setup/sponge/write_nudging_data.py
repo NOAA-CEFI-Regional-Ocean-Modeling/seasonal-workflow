@@ -35,10 +35,7 @@ def add_bounds(ds):
 
 
 def main(
-    year: int,
-    target_grid: xarray.Dataset,
-    input_dir: Path,
-    output_dir: Path
+    year: int, target_grid: xarray.Dataset, input_dir: Path, output_dir: Path
 ) -> None:
     files = list(input_dir.glob(f'glorys_*_{year}-??.nc'))
     glorys = (
@@ -100,8 +97,6 @@ if __name__ == '__main__':
     target_grid = static[['geolat', 'geolon']].rename(
         {'geolat': 'lat', 'geolon': 'lon'}
     )
-    input_dir = (
-        config.filesystem.nowcast_input_data / 'sponge' / 'monthly_filled'
-    )
+    input_dir = config.filesystem.nowcast_input_data / 'sponge' / 'monthly_filled'
     output_dir = input_dir.parents[0]
     main(args.year, target_grid, input_dir, output_dir)

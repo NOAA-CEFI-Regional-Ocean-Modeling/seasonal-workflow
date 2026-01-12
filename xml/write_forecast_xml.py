@@ -43,10 +43,10 @@ def write_xml(common, ystart, mstart):
 
 if __name__ == '__main__':
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument('common', type=str)
     parser.add_argument('ystart', type=int)
     parser.add_argument('mstart', type=int)
     args = parser.parse_args()
     write_xml(args.common, args.ystart, args.mstart)
-

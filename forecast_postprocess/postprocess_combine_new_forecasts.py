@@ -9,12 +9,7 @@ from workflow_tools.config import Config, load_config
 
 
 def process_all_vars(
-    y: int,
-    m: int,
-    all_vars: list[str],
-    output_dir: Path,
-    config: Config,
-    domain:str
+    y: int, m: int, all_vars: list[str], output_dir: Path, config: Config, domain: str
 ) -> None:
     model_output_data = config.filesystem.forecast_output_data
     members = (model_output_data / 'extracted' / domain).glob(

@@ -27,14 +27,16 @@ def write_boundary(ystart, yend, pathin, pathout, n_segments):
             smoothed = smooth_climatology(ave).rename({'dayofyear': 'time'})
 
             encoding = {
-                'time':
-                    {'_FillValue': 1.0e20},
-                f'lon_segment_{segment:03d}':
-                    {'dtype': 'float64', '_FillValue': 1.0e20},
-                f'lat_segment_{segment:03d}':
-                    {'dtype': 'float64', '_FillValue': 1.0e20},
-                f'{var}_segment_{segment:03d}':
-                    {'_FillValue': 1.0e20},
+                'time': {'_FillValue': 1.0e20},
+                f'lon_segment_{segment:03d}': {
+                    'dtype': 'float64',
+                    '_FillValue': 1.0e20,
+                },
+                f'lat_segment_{segment:03d}': {
+                    'dtype': 'float64',
+                    '_FillValue': 1.0e20,
+                },
+                f'{var}_segment_{segment:03d}': {'_FillValue': 1.0e20},
             }
 
             if var == 'zos':
@@ -59,10 +61,12 @@ def write_boundary(ystart, yend, pathin, pathout, n_segments):
                     encoding = {
                         'time': {'_FillValue': 1.0e20},
                         f'lon_segment_{segment:03d}': {
-                            'dtype': 'float64', '_FillValue': 1.0e20
+                            'dtype': 'float64',
+                            '_FillValue': 1.0e20,
                         },
                         f'lat_segment_{segment:03d}': {
-                            'dtype': 'float64', '_FillValue': 1.0e20
+                            'dtype': 'float64',
+                            '_FillValue': 1.0e20,
                         },
                         f'u_segment_{segment:03d}': {'_FillValue': 1.0e20},
                         f'v_segment_{segment:03d}': {'_FillValue': 1.0e20},

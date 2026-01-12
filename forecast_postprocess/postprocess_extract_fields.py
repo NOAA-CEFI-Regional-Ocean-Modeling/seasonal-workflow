@@ -3,6 +3,7 @@ Can also do something like:
 sbatch --export=ALL --wrap="python postprocess_extract_fields.py
     -c config_nwa12_physics.yaml -d ocean_daily -y 2019 -m 3
 """
+
 import datetime as dt
 import subprocess
 from argparse import ArgumentParser, Namespace
@@ -56,6 +57,7 @@ def process_file(
         logger.trace('Starting writing to {f}', f=outfile)
         dsv.to_netcdf(outfile, unlimited_dims='init', encoding=encoding)
         logger.trace('Finished writing to {f}', f=outfile)
+
 
 def process_run(
     forecast: ForecastRun,
@@ -117,9 +119,7 @@ def main(args: Namespace) -> None:
             else config.retrospective_forecasts.months
         )
         nens = config.retrospective_forecasts.ensemble_size
-    outdir = (
-        config.filesystem.forecast_output_data / 'extracted' / args.domain
-    )
+    outdir = config.filesystem.forecast_output_data / 'extracted' / args.domain
     outdir.mkdir(exist_ok=True, parents=True)
     variables = config.variables[args.domain]
     if args.tmp:
@@ -157,7 +157,7 @@ def main(args: Namespace) -> None:
             shell=True,
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
         # If a tape is bad, the single dmget will fail.
         # Try running dmget separately for each individual file.
@@ -171,7 +171,7 @@ def main(args: Namespace) -> None:
                         subprocess.run(
                             [f'dmget {run.archive_dir / run.tar_file}'],
                             shell=True,
-                            check=True
+                            check=True,
                         )
                     except subprocess.CalledProcessError:
                         logger.error(
@@ -194,6 +194,7 @@ def main(args: Namespace) -> None:
     for run in all_runs:
         process_run(run, variables, rerun=args.rerun, clean=args.tmp)
 
+
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('-c', '--config', type=str, required=True)
@@ -215,7 +216,7 @@ if __name__ == '__main__':
         '-n',
         '--new',
         action='store_true',
-        help='Flag if this is a new near-real-time forecast instead of a retrospective.'
+        help='Flag if this is a new near-real-time forecast instead of a retrospective',
     )
     parser.add_argument(
         '--tmp',

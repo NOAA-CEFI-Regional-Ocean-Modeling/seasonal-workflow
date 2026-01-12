@@ -4,12 +4,7 @@ from loguru import logger
 from workflow_tools.config import Config, load_config
 
 
-def process_var(
-    var: str,
-    config: Config,
-    domain: str,
-    ensemble_mean: bool
-) -> None:
+def process_var(var: str, config: Config, domain: str, ensemble_mean: bool) -> None:
     model_output_data = config.filesystem.forecast_output_data
 
     fname = (
@@ -54,7 +49,7 @@ if __name__ == '__main__':
         '--mean',
         action='store_true',
         help='Include only ensemble mean in combined result, \
-            dropping individual members.'
+            dropping individual members.',
     )
     args = parser.parse_args()
     config = load_config(args.config)

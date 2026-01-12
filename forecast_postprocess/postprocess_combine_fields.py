@@ -28,10 +28,7 @@ def check_futures(futures: list[concurrent.futures.Future]) -> None:
 
 
 def process_ensmean(
-    config: Config,
-    cmdargs: Namespace,
-    var: str,
-    mon: int = 0
+    config: Config, cmdargs: Namespace, var: str, mon: int = 0
 ) -> list[Path]:
     # Large files: ensemble average, then concatenate averages
     tmp = Path(os.environ['TMPDIR'])
@@ -74,10 +71,7 @@ def process_ensmean(
 
 
 def process_all_members(
-    config: Config,
-    cmdargs: Namespace,
-    var: str,
-    mon: int = 0
+    config: Config, cmdargs: Namespace, var: str, mon: int = 0
 ) -> list[Path]:
     nens = config.retrospective_forecasts.ensemble_size
     tmp = Path(os.environ['TMPDIR'])
@@ -213,7 +207,7 @@ if __name__ == '__main__':
                 args.domain,
                 model_output_data,
                 mean=args.mean,
-                mon=args.month
+                mon=args.month,
             )
     else:
         files = processor(args.var)
@@ -225,5 +219,5 @@ if __name__ == '__main__':
             args.domain,
             model_output_data,
             mean=args.mean,
-            mon=args.month
+            mon=args.month,
         )

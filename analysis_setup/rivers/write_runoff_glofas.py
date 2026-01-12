@@ -73,7 +73,7 @@ def regrid_runoff(  # noqa: PLR0915
     glofas_mask: np.ndarray,
     hgrid: xarray.Dataset,
     coast_mask: np.ndarray,
-    modify: bool = True
+    modify: bool = True,
 ) -> xarray.Dataset:
     # Assuming grid spacing of 0.05 deg here and below;
     # eventually should detect from file (there are attributes for this)
@@ -217,10 +217,7 @@ def regrid_runoff(  # noqa: PLR0915
 
 
 def get_glofas_file(
-    main_template: str,
-    interim_template: str,
-    monthly_template: str,
-    year: int
+    main_template: str, interim_template: str, monthly_template: str, year: int
 ) -> Path | list[Path] | None:
     main_file = main_template.format(y=year)
     interim_file = interim_template.format(y=year)
@@ -236,6 +233,7 @@ def get_glofas_file(
         monthly_files = []
         for m in range(1, 13):
             mf = monthly_template.format(m=m, y=year)
+            # breakpoint()
             if Path(mf).is_file():
                 monthly_files.append(mf)
             else:
@@ -384,6 +382,7 @@ if __name__ == '__main__':
     from pathlib import Path
 
     from workflow_tools.config import load_config
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, required=True)
     parser.add_argument('-y', '--year', type=int, required=True)
@@ -411,5 +410,5 @@ if __name__ == '__main__':
         glofas_subset=subset,
         extension_climo=config.filesystem.interim_data.GloFAS_extension_climatology,
         outdir=config.filesystem.nowcast_input_data / 'rivers',
-        modify=args.modify
+        modify=args.modify,
     )

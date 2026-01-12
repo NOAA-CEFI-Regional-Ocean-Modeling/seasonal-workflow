@@ -50,9 +50,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     config = load_config(args.config)
 
-    years = np.arange(
-        config.climatology.first_year, config.climatology.last_year + 1
-    )
+    years = np.arange(config.climatology.first_year, config.climatology.last_year + 1)
     input_files = [
         Path(config.filesystem.yearly_river_files.format(year=y)) for y in years
     ]

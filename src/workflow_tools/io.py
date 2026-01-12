@@ -21,6 +21,7 @@ def _run_cmd_silently(cmd: str) -> None:
     res = run_cmd(cmd, text=True, capture_output=True)
     logger.debug(res.stdout)
 
+
 @dataclass
 class HSMGet:
     archive: Path = Path('/')  # hopefully this will duplicate paths used by frepp
@@ -118,4 +119,3 @@ def write_ds(ds: xarray.Dataset, fout: str | Path) -> None:
         encoding={'time': {'dtype': 'float64', 'calendar': 'gregorian'}},
         unlimited_dims=['time'],
     )
-

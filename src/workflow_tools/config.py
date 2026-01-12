@@ -18,18 +18,22 @@ class StrictModel(BaseModel):
                 if not v.exists() and not v.is_relative_to('/gpfs'):
                     logger.warning('path {v} for setting {k} does not exist', k=k, v=v)
 
+
 class RetrospectiveForecasts(StrictModel):
     first_year: int
     last_year: int
     months: list[int]
     ensemble_size: Annotated[int, Field(ge=1)]
 
+
 class NewForecasts(StrictModel):
     ensemble_size: int
+
 
 class Climatology(StrictModel):
     first_year: int
     last_year: int
+
 
 class Domain(StrictModel):
     south_lat: Annotated[float, Field(ge=-90.0)]
@@ -41,9 +45,11 @@ class Domain(StrictModel):
     ocean_static_file: Path
     boundaries: dict[int, str]
 
+
 class Regions(StrictModel):
     mask_file: Path
     names: list[str]
+
 
 class InterimData(StrictModel):
     ERA5: Path
@@ -54,6 +60,7 @@ class InterimData(StrictModel):
     GloFAS_interim: str
     GloFAS_interim_monthly: str
     GloFAS_extension_climatology: Path
+
 
 class Filesystem(StrictModel):
     forecast_input_data: Path
@@ -70,6 +77,7 @@ class Filesystem(StrictModel):
     forecast_history: str
     combined_name: str
 
+
 class Config(StrictModel):
     name: str
     retrospective_forecasts: RetrospectiveForecasts
@@ -82,11 +90,13 @@ class Config(StrictModel):
     filesystem: Filesystem
     model_config = ConfigDict(extra='forbid')
 
+
 def load_config(config_path: str | Path) -> Config:
     """Load and parse the YAML configuration file."""
     with open(config_path) as f:
         data = safe_load(f)
     return Config.model_validate(data)
+
 
 if __name__ == '__main__':
     config = load_config('config_nwa12_cobalt.yaml')
