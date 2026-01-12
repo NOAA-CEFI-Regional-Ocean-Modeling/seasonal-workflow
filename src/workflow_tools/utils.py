@@ -12,6 +12,8 @@ type XarrayData = xarray.Dataset | xarray.DataArray
 
 def run_cmd(cmd: str, escape: bool = False, **kwargs: Any) -> CompletedProcess:
     logger.debug(cmd)
+    kwargs.setdefault('capture_output', True)
+    kwargs.setdefault('text', True)
     # Some file names contain (1) or similar, which
     # will cause problems if sent directly to dmget.
     # Put a backslash in front of these.
