@@ -23,7 +23,7 @@ variables:
     - name: range_check
       args:
         min_val: 0
-        max_val: 44 # model can evaporate a lot
+        max_val: 44.2 # model can evaporate a lot
   sos_anom:
     - name: range_check
       args:

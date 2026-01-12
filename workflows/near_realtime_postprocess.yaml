@@ -11,7 +11,7 @@ workflow:
   cycledef:
     - attrs:
         group: default
-      spec: "0 0 1 */3 2025 *"
+      spec: "0 0 1 */3 2026 *"
   log:
     cyclestr:
       value: /home/acr/git/seasonal-workflow/workflows/nrt_postprocess_@Y-@m.log
@@ -76,7 +76,7 @@ workflow:
             value: "&ENV_SETUP; python forecast_postprocess/postprocess_extract_fields.py -c config_nwa12_cobalt.yaml -d #domain# -y @Y -m @m --new"
         partition: analysis
         nodes: 1:ppn=1
-        walltime: 1:00:00
+        walltime: 00:30:00
         # This uses /vftmp/$USER as a cache so it should run on the same node every time
         native: -D /home/acr/git/seasonal-workflow --nodelist=an211 --output=&LOGS;/pp_extract_%j.out
     metatask_postprocess_combine:

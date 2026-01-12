@@ -11,16 +11,12 @@ from workflow_tools.grid import round_coords
 from workflow_tools.io import HSMGet
 from workflow_tools.utils import run_cmd
 
-hsmget = HSMGet(archive=Path('/archive/uda'))
+hsmget = HSMGet()
 TMP = hsmget.tmp
 
 
 def find_best_files(
-    year: int,
-    mon: int,
-    var: str,
-    reanalysis_path: Path,
-    analysis_path: Path
+    year: int, mon: int, var: str, reanalysis_path: Path, analysis_path: Path
 ) -> list[Path]:
     if var == 'uv':
         # For velocity, find the individual components separately.
@@ -104,9 +100,7 @@ def find_best_files(
 
 
 def thread_worker(
-    in_file: Path,
-    out_dir: Path,
-    lon_lat_box: tuple[float, float, float, float]
+    in_file: Path, out_dir: Path, lon_lat_box: tuple[float, float, float, float]
 ) -> Path:
     out_file = out_dir / in_file.name
     lonmin, lonmax, latmin, latmax = lon_lat_box
@@ -115,14 +109,14 @@ def thread_worker(
             f'cdo setmisstonn '
             f'-sellonlatbox,{lonmin},{lonmax},{latmin},{latmax} '
             f'{in_file.as_posix()} {out_file.as_posix()}',
-            escape=True
+            escape=True,
         )
     else:
         run_cmd(
             f'cdo setmisstonn -sellevidx,1/49 '
             f'-sellonlatbox,{lonmin},{lonmax},{latmin},{latmax} '
             f'{in_file.as_posix()} {out_file.as_posix()}',
-            escape=True
+            escape=True,
         )
     # out_file.with_suffix('.tmp').rename(out_file)
     return out_file
@@ -187,8 +181,10 @@ def main(
                 # Make sure that data was found for every day of the month.
                 n_expected = monthrange(year, mon)[1]
                 if len(files) != n_expected:
-                    logger.warning(f'Number of files found ({len(files)}) is not '
-                                   'the same as expected ({n_expected})')
+                    logger.warning(
+                        f'Number of files found ({len(files)}) is not '
+                        'the same as expected ({n_expected})'
+                    )
                 copied_files = hsmget(files)
 
                 with futures.ThreadPoolExecutor(max_workers=threads) as executor:
@@ -203,11 +199,11 @@ def main(
 
                 # Save data for use with sponge. TODO: config output path
                 if var in ['so', 'thetao']:
-                    file_strs = " ".join(x.as_posix() for x in processed_files)
+                    file_strs = ' '.join(x.as_posix() for x in processed_files)
                     run_cmd(
                         f'cdo timavg -cat {file_strs} '
                         f'/work/acr/mom6/nwa12/analysis_input_data/sponge/monthly_filled/glorys_{var}_{year}-{mon:02d}.nc',
-                        escape=True
+                        escape=True,
                     )
                 ds = xarray.open_mfdataset(
                     processed_files, preprocess=partial(round_coords, to=12)
@@ -234,6 +230,7 @@ def main(
                         )
                 for f in processed_files:
                     f.unlink()
+
 
 if __name__ == '__main__':
     import argparse
@@ -262,7 +259,7 @@ if __name__ == '__main__':
     config = load_config(args.config)
     dom = config.domain
     hgrid = xarray.open_dataset(dom.hgrid_file)
-    output_dir = config.filesystem.nowcast_input_data/ 'boundary' / 'monthly'
+    output_dir = config.filesystem.nowcast_input_data / 'boundary' / 'monthly'
     segments = [
         Segment(num, edge, hgrid, output_dir=output_dir)
         for num, edge in dom.boundaries.items()

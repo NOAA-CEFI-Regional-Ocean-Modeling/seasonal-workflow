@@ -1,0 +1,160 @@
+name: nwa12_cobalt
+
+# Configure initialization dates and ensemble size
+# for the retrospective forecasts.
+retrospective_forecasts:
+  first_year: 1994
+  last_year: 2023
+  months:
+    - 1
+    - 4
+    - 7
+    - 10
+  ensemble_size: 10
+
+# Configuration for the real time (new) forecasts.
+new_forecasts:
+  ensemble_size: 10
+
+# Name the snapshot files to look for in the history tar files.
+# These are monthly instantaneous data that will be used for initial conditions.
+# "_snap" is appended to these names, so the below says to look for files
+# named ocean_month_snap, ice_month_snap, and ocean_cobalt_tracers_snap.
+snapshots:
+  - ocean_month
+  - ice_month
+  - ocean_cobalt_tracers
+
+# Use forecasts initialized between these dates (inclusive) to
+# calculate the lead-dependent climatologies.
+climatology:
+  first_year: 1994
+  last_year: 2023
+
+# Configure the model bounding box, grid files, and open boundaries
+domain:
+  # Bounding box for subsetting some data:
+  south_lat: 5
+  north_lat: 60
+  west_lon: -100
+  east_lon: -30
+  # Model grid files
+  hgrid_file: /home/Andrew.C.Ross/git/nwa12/setup/grid/ocean_hgrid.nc
+  ocean_mask_file: /home/Andrew.C.Ross/git/nwa12/setup/grid/ocean_mask.nc
+  ocean_static_file: /home/Andrew.C.Ross/git/nwa12/data/geography/ocean_static.nc
+  # Configure open boundaries.
+  # Not yet confirmed if this will work if there are no open boundaries.
+  boundaries:
+    1: south
+    2: north
+    3: east
+
+# Mask file and region names for region averaging during post-processing.
+regions:
+  mask_file: /home/Andrew.C.Ross/git/nwa12/data/geography/masks/regions_30m.nc
+  names:
+    - SS_LME
+    - NEUS_LME
+    - SEUS_LME
+    - SS
+    - GOM
+    - MAB
+    - GB
+
+# Define subsets of variables to extract from the various files within each
+# history tar file. This helps reduce disk space and save time.
+variables:
+  ocean_month:
+    - tos
+    - tob
+    - sos
+    - sob
+    - MLD_003
+    - ssh
+  ocean_daily:
+    - tos
+    - tob
+    - sos
+    - MLD_003
+  ocean_cobalt_btm:
+    - btm_o2
+    - btm_co3_sol_arag
+    - btm_co3_sol_calc
+    - btm_co3_ion
+    - btm_htotal
+  ocean_cobalt_omip_sfc:
+    - chlos
+    - no3os
+    - phos
+    - po4os
+    - sios
+    - talkos
+    - dissicos
+  ocean_cobalt_neus:
+    - chlos
+    - no3os
+    - po4os
+    - zmesoos
+    - nsmp_100
+    - nmdp_100
+    - nlgp_100
+  ocean_neus:
+    - MLD_003
+    - so
+    - thetao
+    - ustar
+  ocean_cobalt_daily_2d:
+    - chlos
+    - btm_o2
+    - btm_co3_sol_arag
+    - btm_co3_ion
+    - btm_htotal
+  ocean_cobalt_sfc:
+    - pco2surf
+    - sfc_co3_ion
+    - sfc_co3_sol_arag
+  ocean_cobalt_fdet_100:
+    - fntot_100
+    - fndet_100
+
+# Define where to read and write various files in the PPAN and Gaea file systems.
+filesystem:
+  # Where to write files:
+  forecast_input_data: /work/acr/mom6/nwa12/forecast_input_data
+  nowcast_input_data: /work/acr/mom6/nwa12/analysis_input_data
+  forecast_output_data: /work/acr/mom6/nwa12/forecast_output_data
+  gaea_input_data: /gpfs/f6/ira-cefi/scratch/Andrew.C.Ross/northwest_atlantic/nwa12_input/forecast_input_data
+  yearly_river_files: /work/acr/mom6/nwa12/analysis_input_data/rivers/glofasv4_runoff_{year}.nc
+  # Where to read files:
+  open_boundary_files: /work/acr/mom6/nwa12/glorys/updated # TODO
+  glorys_interpolated: /work/acr/glorys/interpolated
+  interim_data:
+    ERA5: /archive/acr/uda_CEFI/ERA5
+    GLORYS_reanalysis: /archive/uda/Global_Ocean_Physics_Reanalysis/global/daily
+    GLORYS_analysis: /archive/acr/uda_CEFI/GLOBAL_ANALYSISFORECAST_PHY_001_024/
+    GloFAS_ldd: /archive/acr/datasets/glofas/v4.0/ldd_glofas_v4_0.nc
+    GloFAS_v4: /archive/uda/GloFAS/LISFLOOD/consolidated/global/river_discharge/v4.0/GloFAS_river_discharge_{y}_v4.0.nc
+    # Look for full years of GloFAS data, and look for individual months when those are not available
+    GloFAS_interim: /archive/acr/uda_CEFI/GloFAS/GloFAS_river_discharge_{y}_v4.0.nc
+    GloFAS_interim_monthly: /archive/acr/uda_CEFI/GloFAS/GloFAS_river_discharge_{m:02d}{y}_v4.0.nc
+    # Use climatology in forecast and late periods when GloFAS is not available.
+    # Using version 3 until v4 is fully evaluated
+    GloFAS_extension_climatology: /work/acr/mom6/nwa12/forecast_input_common/glofas_runoff_climo_1993_2019_2023-04-v2.nc
+  # Location of the nudged analysis history files:
+  # analysis_history: /archive/Andrew.C.Ross/fre/NWA/2024_09/NWA12_COBALT_2024_09_nudgets-90d/gfdl.ncrc6-intel23-prod/history/
+  # NOTE: using re-run for newer bgc diags
+  analysis_history: /archive/Andrew.C.Ross/fre/NWA/2024_09/NWA12_COBALT_2024_09_nudgets-90d_rerun/gfdl.ncrc6-intel23-prod/history/
+  # The NWA12 seasonal BGC analysis was run in multiple steps.
+  # It should be safe to delete this for a continuous analysis.
+  analysis_extensions:
+    - /archive/Andrew.C.Ross/fre/NWA/2024_09/NWA12_COBALT_2024_09_extension_nudgets-90d/gfdl.ncrc6-intel23-prod/history/
+    - /archive/Andrew.C.Ross/fre/NWA/2024_09/NWA12_COBALT_2024_09_extension_2024_nudgets-90d/gfdl.ncrc6-intel23-prod/history/
+  # The nowcast run is a nudged analysis run from the beginning of the current year to the initialization
+  # date of the real-time forecast.
+  nowcast_history: /archive/acr/fre/NWA/2024_09/NWA12_COBALT_2024_09_i{year}{month:02d}/gfdl.ncrc6-intel23-prod/history/
+  # Template for the name of the forecast tar files.
+  # Note that year, month, and ensemble will be filled in by the python tools.
+  forecast_history: /archive/Andrew.C.Ross/fre/NWA/2024_09/NWA12_cobalt_forecast_2024_09_{year}-{month:02d}-e{ensemble:02d}/gfdl.ncrc6-intel23-prod/history/
+  # Name to give post-processed real-time forecast output data.
+  combined_name: "{var}.nwa.full.ss_fcast.{freq}.raw.r20250710.enss.i{year}{month:02d}.nc"
+  # TODO:need to have process_spear_job.sh read the path to place processed SPEAR data from here
