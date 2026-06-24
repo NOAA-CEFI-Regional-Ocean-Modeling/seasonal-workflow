@@ -38,8 +38,8 @@ class Climatology(StrictModel):
 class Domain(StrictModel):
     south_lat: Annotated[float, Field(ge=-90.0)]
     north_lat: Annotated[float, Field(le=90.0)]
-    west_lon: Annotated[float, Field(ge=-180.0)]
-    east_lon: Annotated[float, Field(le=180.0)]
+    west_lon: Annotated[float, Field(ge=-360.0)]
+    east_lon: Annotated[float, Field(le=360.0)]
     hgrid_file: Path
     ocean_mask_file: Path
     ocean_static_file: Path
