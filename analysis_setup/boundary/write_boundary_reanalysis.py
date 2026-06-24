@@ -264,8 +264,13 @@ if __name__ == '__main__':
     angle_units = 'degrees' if dom.hgrid_angle_is_degrees else 'radians'
     logger.debug(f'Using hgrid angle units: {angle_units}')
     segments = [
-        Segment(num, edge, hgrid, output_dir=output_dir,
-                in_degrees=dom.hgrid_angle_is_degrees)
+        Segment(
+            num,
+            edge,
+            hgrid,
+            output_dir=output_dir,
+            in_degrees=dom.hgrid_angle_is_degrees,
+        )
         for num, edge in dom.boundaries.items()
     ]
     main(
