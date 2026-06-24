@@ -44,6 +44,7 @@ domain:
   ocean_static_file: /home/Andrew.C.Ross/git/nwa12/data/geography/ocean_static.nc
   # Configure open boundaries.
   # Not yet confirmed if this will work if there are no open boundaries.
+  hgrid_angle_is_degrees: true
   boundaries:
     1: south
     2: north
