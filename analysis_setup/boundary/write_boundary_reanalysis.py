@@ -4,9 +4,9 @@ from functools import partial
 from pathlib import Path
 
 import xarray
-from boundary import Segment
 from loguru import logger
 
+from workflow_tools.boundary import Segment
 from workflow_tools.grid import round_coords
 from workflow_tools.io import HSMGet
 from workflow_tools.utils import run_cmd
