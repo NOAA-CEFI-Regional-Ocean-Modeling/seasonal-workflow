@@ -116,7 +116,7 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and add it
 Then,
 ```sh
 module load python/3.13
-module load esmf/8.7.0
+module load esmf/8.8.1
 uv sync
 source .venv/bin/activate.csh # or without the .csh depending on shell
 ```
@@ -124,11 +124,11 @@ source .venv/bin/activate.csh # or without the .csh depending on shell
 ### Loading python and required modules (on GFDL analysis)
 
 ```sh
-module load nco/5.2.4
-module load cdo/2.4.4
+module load nco/5.3.3
+module load cdo/2.5.2
 module load gcp hsm/1.3.0
 module load python/3.13
-module load esmf/8.7.0
+module load esmf/8.8.1
 source .venv/bin/activate.csh # or without the .csh depending on shell
 ```
 
