@@ -44,6 +44,7 @@ class Domain(StrictModel):
     ocean_mask_file: Path
     ocean_static_file: Path
     boundaries: dict[int, str]
+    hgrid_angle_is_degrees: bool
 
 
 class Regions(StrictModel):

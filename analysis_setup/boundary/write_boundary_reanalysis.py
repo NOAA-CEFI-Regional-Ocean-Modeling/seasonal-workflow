@@ -211,6 +211,7 @@ def main(
                 if 'depth' in ds.coords:
                     ds = ds.rename({'depth': 'z'})
                 for seg in segments:
+                    logger.info('Regridding segment {num:03d}', num=seg.num)
                     if var == 'uv':
                         seg.regrid_velocity(
                             ds['uo'],
@@ -260,8 +261,11 @@ if __name__ == '__main__':
     dom = config.domain
     hgrid = xarray.open_dataset(dom.hgrid_file)
     output_dir = config.filesystem.nowcast_input_data / 'boundary' / 'monthly'
+    angle_units = 'degrees' if dom.hgrid_angle_is_degrees else 'radians'
+    logger.debug(f'Using hgrid angle units: {angle_units}')
     segments = [
-        Segment(num, edge, hgrid, output_dir=output_dir)
+        Segment(num, edge, hgrid, output_dir=output_dir,
+                in_degrees=dom.hgrid_angle_is_degrees)
         for num, edge in dom.boundaries.items()
     ]
     main(
