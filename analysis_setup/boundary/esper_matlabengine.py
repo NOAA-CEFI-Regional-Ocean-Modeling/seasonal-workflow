@@ -1,3 +1,10 @@
+"""
+Secret to running on analysis:
+(base) bash-4.4$ export LD_PRELOAD=/home/Andrew.C.Ross/.conda/envs/matlabengine/lib/libstdc++.so.6
+(base) bash-4.4$ conda activate matlabengine
+(matlabengine) bash-4.4$ python esper_matlabengine.py
+"""
+
 import datetime as dt
 
 import matlab.engine

@@ -33,11 +33,9 @@ def process_climatology(
     res = rivers[['area', 'lat', 'lon']].isel(time=0).drop_vars('time')
     # add smoothed result to res
     res['runoff'] = smoothed
-    logger.info('Writing')
-    res.to_netcdf(
-        output_dir / f'glofas_runoff_climo_{years[0]:d}_{years[-1]:d}.nc',
-        unlimited_dims='time',
-    )
+    output_fname = output_dir / f'glofas_runoff_climo_{years[0]:d}_{years[-1]:d}.nc'
+    logger.info('Writing to {f}', f=output_fname)
+    res.to_netcdf(output_fname, unlimited_dims='time')
 
 
 if __name__ == '__main__':
@@ -54,6 +52,8 @@ if __name__ == '__main__':
     input_files = [
         Path(config.filesystem.yearly_river_files.format(year=y)) for y in years
     ]
+    logger.info('Using input files: \n' + '\n'.join(map(str, input_files)))
     work_dir = config.filesystem.forecast_input_data / 'rivers'
+    logger.info('Will write results to: {work_dir}', work_dir=work_dir)
     work_dir.mkdir(exist_ok=True)
     process_climatology(years, input_files, work_dir)
