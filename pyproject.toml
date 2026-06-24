@@ -15,6 +15,7 @@ dependencies = [
     "pandas>=2.3.0",
     "pydantic>=2.11.7",
     "pyyaml>=6.0.2",
+    "scipy>=0.16",
     "xarray>=2025.6.1",
     "xesmf>=0.8.0",
 ]
@@ -74,5 +75,5 @@ exclude = [
 ]
 
 [tool.uv.sources]
-esmpy = { git = "https://github.com/esmf-org/esmf", subdirectory = "src/addon/esmpy", tag = "v8.7.0" }
+esmpy = { git = "https://github.com/esmf-org/esmf", subdirectory = "src/addon/esmpy", tag = "v8.8.1" }
 
