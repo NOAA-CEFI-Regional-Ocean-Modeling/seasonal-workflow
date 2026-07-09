@@ -12,4 +12,5 @@ source /home/acr/git/seasonal-workflow/.venv/bin/activate
 export now_month=`date +%m`
 export now_year=`date +%Y`
 
-# conda activate /nbhome/acr/python/envs/medpy311_20241024
+# Avoid HDF5 issues on /work
+export HDF5_USE_FILE_LOCKING=FALSE
