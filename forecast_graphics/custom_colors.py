@@ -105,8 +105,12 @@ smooth_anomaly_colors = [
     '#C24A73',
     '#CF517C',
     '#D75682',
-    '#D95885'
+    '#D95885',
 ]
 
-smooth_anomaly_cmap = LinearSegmentedColormap.from_list('smooth_anomaly', smooth_anomaly_colors)
-smooth_anomaly_cmap_r = LinearSegmentedColormap.from_list('smooth_anomaly_r', list(reversed(smooth_anomaly_colors)))
+smooth_anomaly_cmap = LinearSegmentedColormap.from_list(
+    'smooth_anomaly', smooth_anomaly_colors
+)
+smooth_anomaly_cmap_r = LinearSegmentedColormap.from_list(
+    'smooth_anomaly_r', list(reversed(smooth_anomaly_colors))
+)
