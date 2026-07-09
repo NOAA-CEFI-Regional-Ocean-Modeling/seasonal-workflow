@@ -1,4 +1,5 @@
 from calendar import month_name
+from pathlib import Path
 
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -11,6 +12,7 @@ from loguru import logger
 from matplotlib.offsetbox import AnnotationBbox, OffsetImage
 from mpl_toolkits.axes_grid1 import AxesGrid
 
+HERE = Path(__file__).resolve().parent
 plt.rcParams['font.sans-serif'] = 'Cantarell'
 
 states_lo = cfeature.NaturalEarthFeature(
@@ -94,11 +96,11 @@ def main(static, forecasts, year, month):
     fig.text(
         0.5,
         0.92,
-        f'MOM6-NWA12 model initialized {month_name[month][0:3]} 1 2026',
+        f'MOM6-NWA12 model initialized {month_name[month][0:3]} 1 {year}',
         fontsize=14,
         ha='center',
     )
-    img = mpimg.imread('NOAA-Transparent-Logo_1.png')
+    img = mpimg.imread(HERE / 'NOAA-Transparent-Logo_1.png')
     imagebox = OffsetImage(img, zoom=0.17, alpha=1)
     ab = AnnotationBbox(
         imagebox,
@@ -109,7 +111,7 @@ def main(static, forecasts, year, month):
     )
     grid[-1].add_artist(ab)
     plt.savefig(
-        f'figures/forecast_tos_anom_neus_{year}{month:02d}.png',
+        HERE / 'figures' / f'forecast_tos_anom_nwa12_{year}{month:02d}.png',
         dpi=200,
         bbox_inches='tight',
     )

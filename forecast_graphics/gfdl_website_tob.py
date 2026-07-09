@@ -1,4 +1,5 @@
 from calendar import month_name
+from pathlib import Path
 
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -13,6 +14,7 @@ from matplotlib.lines import Line2D
 from matplotlib.offsetbox import AnnotationBbox, OffsetImage
 from mpl_toolkits.axes_grid1 import AxesGrid
 
+HERE = Path(__file__).resolve().parent
 plt.rcParams['font.sans-serif'] = 'Cantarell'
 
 states = cfeature.NaturalEarthFeature(
@@ -57,8 +59,6 @@ def main(static, forecasts, glorys, year, month):  # noqa: PLR0915
         .mean()
         .rename({'month_bins': 'month'})
     )
-    year0 = int(seasonal_ensmean['init.year'])
-    mon0 = int(seasonal_ensmean['init.month'])
     common = {'vmin': -4, 'vmax': 4, 'cmap': smooth_anomaly_cmap}
     logger.info('Figure 1: anomaly')
     fig = plt.figure(figsize=(10, 8))
@@ -82,7 +82,7 @@ def main(static, forecasts, glorys, year, month):  # noqa: PLR0915
         plot_data = seasonal_ensmean['tob_anom'].isel(lead=i).where(static.deptho < 500)
         h = ax.pcolormesh(static.geolon_c, static.geolat_c, plot_data, **common)
         mon = int(valid_month.isel(lead=i))
-        yr = year0 + 1 if mon < mon0 else year0
+        yr = year + 1 if mon < month else year
         ax.set_title(f'{titles[mon]} {yr}', pad=6)
         ax.set_extent([-77, -60, 35, 46])
         for s in ax.spines.values():
@@ -100,11 +100,11 @@ def main(static, forecasts, glorys, year, month):  # noqa: PLR0915
     fig.text(
         0.5,
         0.91,
-        f'MOM6-NWA12 model initialized {month_name[mon0][0:3]} 1 2026',
+        f'MOM6-NWA12 model initialized {month_name[month][0:3]} 1 {year}',
         fontsize=14,
         ha='center',
     )
-    img = mpimg.imread('NOAA-Transparent-Logo_1.png')
+    img = mpimg.imread(HERE / 'NOAA-Transparent-Logo_1.png')
     imagebox = OffsetImage(img, zoom=0.2, alpha=1)
     ab = AnnotationBbox(
         imagebox,
@@ -115,7 +115,7 @@ def main(static, forecasts, glorys, year, month):  # noqa: PLR0915
     )
     grid[-1].add_artist(ab)
     plt.savefig(
-        f'figures/forecast_tob_anom_neus_{year}{month:02d}.png',
+        HERE / 'figures' / f'forecast_tob_anom_neus_{year}{month:02d}.png',
         dpi=200,
         bbox_inches='tight',
     )
@@ -146,7 +146,7 @@ def main(static, forecasts, glorys, year, month):  # noqa: PLR0915
     ]
     for i, ax in enumerate(grid):
         mon = int(valid_month.isel(lead=i))
-        yr = year0 + 1 if mon < mon0 else year0
+        yr = year + 1 if mon < month else year
         clim = glorys_clim.sel(month=mon)
         corrected = seasonal_ensmean['tob_anom'].isel(lead=i) + clim
         corrected = corrected.where(static.deptho < 500)
@@ -182,7 +182,7 @@ def main(static, forecasts, glorys, year, month):  # noqa: PLR0915
     fig.text(
         0.5,
         0.91,
-        f'MOM6-NWA12 model initialized {month_name[mon0][0:3]} 1 2026',
+        f'MOM6-NWA12 model initialized {month_name[month][0:3]} 1 {year}',
         fontsize=14,
         ha='center',
     )
@@ -196,10 +196,11 @@ def main(static, forecasts, glorys, year, month):  # noqa: PLR0915
     )
     grid[-1].add_artist(ab)
     plt.savefig(
-        f'figures/forecast_tob_value_neus_{year}{month:02d}.png',
+        HERE / 'figures' / f'forecast_tob_value_neus_{year}{month:02d}.png',
         dpi=200,
         bbox_inches='tight',
     )
+    plt.close()
 
 
 if __name__ == '__main__':
