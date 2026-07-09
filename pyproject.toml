@@ -25,6 +25,11 @@ dev = [
   "pytest>=8.4.0",
   "ruff>=0.11.12",
 ]
+figures = [
+    "matplotlib>=3.10.3",
+    "cartopy>=0.24.1",
+    "colormaps>=0.4.2",
+]
 
 [build-system]
 requires = ["hatchling"]
