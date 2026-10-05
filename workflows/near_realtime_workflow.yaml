@@ -57,7 +57,7 @@ workflow:
             # This will wrongly succeed if find doesn't return any files.
         partition: batch
         nodes: 1:ppn=1
-        walltime: 0:15:00
+        walltime: 0:30:00
         native: -D /home/acr/git/seasonal-workflow  --output=&LOGS;/spear_qc_%j.out
         dependency:
           taskdep:
@@ -78,7 +78,7 @@ workflow:
             value: "&QC_SETUP; find &FORECAST_INPUT;/atmos/@Y-@m-e??/ -name \"*#variable#*\" -type f -print0 | xargs -0 -n 1 sh -c '/nbhome/acr/local/bin/uv run /home/acr/git/ncqc/ncqc.py  \"$1\" -c workflows/qc_atmos.yaml --fail-on-error || exit 255' _"
         partition: batch
         nodes: 1:ppn=1
-        walltime: 0:15:00
+        walltime: 0:30:00
         native: -D /home/acr/git/seasonal-workflow  --output=&LOGS;/spear_qc_%j.out
         dependency:
           taskdep:

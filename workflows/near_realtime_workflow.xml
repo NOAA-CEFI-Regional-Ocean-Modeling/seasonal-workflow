@@ -34,7 +34,7 @@
     <task name="qc_spear_#variable#" cycledefs="default" maxtries="2">
       <nodes>1:ppn=1</nodes>
       <partition>batch</partition>
-      <walltime>0:15:00</walltime>
+      <walltime>0:30:00</walltime>
       <command>
         <cyclestr>&QC_SETUP; find &FORECAST_INPUT;/atmos/@Y-@m-e??/ -name "*#variable#*" -type f -print0 | xargs -0 -n 1 sh -c '/nbhome/acr/local/bin/uv run /home/acr/git/ncqc/ncqc.py  "$1" -c workflows/qc_atmos.yaml workflows/qc_daily.yaml --fail-on-error || exit 255' _</cyclestr>
       </command>
@@ -50,7 +50,7 @@
     <task name="qc_spear_#variable#" cycledefs="default" maxtries="1">
       <nodes>1:ppn=1</nodes>
       <partition>batch</partition>
-      <walltime>0:15:00</walltime>
+      <walltime>0:30:00</walltime>
       <command>
         <cyclestr>&QC_SETUP; find &FORECAST_INPUT;/atmos/@Y-@m-e??/ -name "*#variable#*" -type f -print0 | xargs -0 -n 1 sh -c '/nbhome/acr/local/bin/uv run /home/acr/git/ncqc/ncqc.py  "$1" -c workflows/qc_atmos.yaml --fail-on-error || exit 255' _</cyclestr>
       </command>
