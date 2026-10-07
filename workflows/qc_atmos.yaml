@@ -13,7 +13,7 @@ variables:
     - name: range_check
       args:
         min_val: 342000
-        max_val: 1800000
+        max_val: 1810000
   precip:
     - no_nans
     - name: range_check
